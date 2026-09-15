@@ -1,1164 +1,463 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Интеллектуальный Электронный Дневник — ЭДШ-Pro</title>
-    <!-- Google Fonts & Font Awesome Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK (v9 compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-glow: rgba(99, 102, 241, 0.35);
-            --primary-dark: #4f46e5;
-            --secondary: #ec4899;
-            --accent: #06b6d4;
-            --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --grade-5: #10b981;
-            --grade-4: #3b82f6;
-            --grade-3: #f59e0b;
-            --grade-2: #ef4444;
-            --radius-lg: 24px;
-            --radius-md: 16px;
-            --radius-sm: 10px;
-            --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.12) 0px, transparent 50%);
-            background-attachment: fixed;
-            position: relative;
-        }
-
-        /* Ambient animated particles background */
-        .ambient-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: floatOrb 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
-        }
-
-        .orb-1 { width: 400px; height: 400px; background: var(--primary); top: -100px; left: -100px; }
-        .orb-2 { width: 500px; height: 500px; background: var(--secondary); bottom: -150px; right: -100px; animation-delay: -7s; }
-        .orb-3 { width: 300px; height: 300px; background: var(--accent); top: 40%; left: 60%; animation-delay: -12s; }
-
-        @keyframes floatOrb {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(60px, 80px) scale(1.15); }
-        }
-
-        /* Overlay loader */
-        .loader-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.92);
-            backdrop-filter: blur(16px);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-        }
-
-        .loader-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .spinner-container {
-            position: relative;
-            width: 90px;
-            height: 90px;
-        }
-
-        .spinner-ring {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            border: 4px solid transparent;
-            border-top-color: var(--primary);
-            animation: spin 1s linear infinite;
-        }
-
-        .spinner-ring-inner {
-            position: absolute;
-            inset: 12px;
-            border-radius: 50%;
-            border: 4px solid transparent;
-            border-bottom-color: var(--secondary);
-            animation: spinReverse 0.8s linear infinite;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes spinReverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
-
-        .loader-text {
-            margin-top: 24px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #f8fafc, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: pulseText 1.5s infinite ease-in-out;
-        }
-
-        .loader-sub {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 6px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        @keyframes pulseText { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-
-        .app-wrapper {
-            position: relative;
-            z-index: 1;
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 24px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(30, 41, 59, 0.65);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
-            padding: 16px 28px;
-            margin-bottom: 28px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-        }
-
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: #fff;
-            text-decoration: none;
-        }
-
-        .brand-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 20px var(--primary-glow);
-        }
-
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #34d399;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #10b981;
-            box-shadow: 0 0 10px #10b981;
-            animation: blink 1.8s infinite;
-        }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-        .view-screen {
-            display: none;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.4s var(--transition-smooth), transform 0.4s var(--transition-smooth);
-        }
-
-        .view-screen.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .roles-container {
-            text-align: center;
-            max-width: 960px;
-            margin: 40px auto 0 auto;
-        }
-
-        .hero-title {
-            font-size: 2.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 12px;
-            letter-spacing: -0.8px;
-        }
-
-        .hero-subtitle {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 48px;
-        }
-
-        .role-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 28px;
-        }
-
-        @media (max-width: 868px) {
-            .role-cards-grid { grid-template-columns: 1fr; }
-        }
-
-        .role-card-item {
-            position: relative;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
-            padding: 36px 24px;
-            cursor: pointer;
-            transition: all 0.35s var(--transition-smooth);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .role-card-item:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: rgba(99, 102, 241, 0.5);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(99, 102, 241, 0.2);
-        }
-
-        .role-badge-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-            margin-bottom: 24px;
-            transition: transform 0.3s ease;
-        }
-
-        .role-card-item:hover .role-badge-icon {
-            transform: scale(1.1) rotate(4deg);
-        }
-
-        .icon-teacher { background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); }
-        .icon-student { background: linear-gradient(135deg, #ec4899, #f43f5e); color: #fff; box-shadow: 0 10px 25px rgba(236, 72, 153, 0.4); }
-        .icon-parent { background: linear-gradient(135deg, #06b6d4, #10b981); color: #fff; box-shadow: 0 10px 25px rgba(6, 182, 212, 0.4); }
-
-        .role-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
-        .role-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
-
-        .role-action-btn {
-            margin-top: auto;
-            width: 100%;
-            padding: 12px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--card-border);
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .role-card-item:hover .role-action-btn {
-            background: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 4px 15px var(--primary-glow);
-        }
-
-        .auth-box-card {
-            max-width: 480px;
-            margin: 30px auto;
-            background: var(--card-bg);
-            backdrop-filter: blur(24px);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
-            padding: 40px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
-        }
-
-        .btn-nav-back {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            padding: 10px 18px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            margin-bottom: 24px;
-        }
-
-        .btn-nav-back:hover { color: #fff; background: rgba(255, 255, 255, 0.12); }
-
-        .auth-header { text-align: center; margin-bottom: 28px; }
-        .auth-header h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
-        .auth-header p { font-size: 0.9rem; color: var(--text-muted); }
-
-        .pin-dots-container {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin: 24px 0 32px 0;
-        }
-
-        .pin-dot {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.2s ease;
-        }
-
-        .pin-dot.filled {
-            background: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 0 15px var(--primary-glow);
-            transform: scale(1.2);
-        }
-
-        .keypad-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        .keypad-btn {
-            height: 60px;
-            border-radius: 18px;
-            border: 1px solid var(--card-border);
-            background: rgba(255, 255, 255, 0.04);
-            color: #fff;
-            font-size: 1.3rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .keypad-btn:hover { background: rgba(255, 255, 255, 0.12); }
-        .keypad-btn:active { transform: scale(0.92); background: var(--primary); }
-
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
-
-        .form-control {
-            width: 100%;
-            padding: 14px 18px;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-sm);
-            color: #fff;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
-
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            border-radius: var(--radius-sm);
-            border: none;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px var(--primary-glow);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(99, 102, 241, 0.5); }
-
-        .dashboard-layout {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 28px;
-        }
-
-        @media (max-width: 992px) { .dashboard-layout { grid-template-columns: 1fr; } }
-
-        .sidebar-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-        }
-
-        .user-profile-badge {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--card-border);
-            margin-bottom: 20px;
-        }
-
-        .user-avatar {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            color: #fff;
-            font-weight: 700;
-        }
-
-        .side-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-        .side-menu-item {
-            padding: 12px 16px;
-            border-radius: var(--radius-sm);
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .side-menu-item:hover, .side-menu-item.active {
-            color: #fff;
-            background: rgba(99, 102, 241, 0.15);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-        }
-
-        .dash-content-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            margin-bottom: 24px;
-        }
-
-        .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-bottom: 28px;
-        }
-
-        .stat-card {
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-md);
-            padding: 20px;
-        }
-
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin: 6px 0;
-            background: linear-gradient(135deg, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .grade-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 1.1rem;
-            color: #fff;
-            margin-right: 6px;
-            transition: transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .grade-badge:hover { transform: scale(1.18); }
-        .grade-5 { background: linear-gradient(135deg, #10b981, #059669); }
-        .grade-4 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .grade-3 { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .grade-2 { background: linear-gradient(135deg, #ef4444, #dc2626); }
-
-        .modern-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        .modern-table th { padding: 12px 18px; text-align: left; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
-        .modern-table tbody tr { background: rgba(15, 23, 42, 0.4); border: 1px solid var(--card-border); }
-        .modern-table td { padding: 16px 18px; color: #f8fafc; font-size: 0.95rem; }
-
-        .timetable-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-md);
-            padding: 16px 20px;
-            margin-bottom: 12px;
-        }
-
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .toast-item {
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid var(--card-border);
-            padding: 16px 20px;
-            border-radius: var(--radius-md);
-            color: #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(12px);
-            z-index: 8000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-
-        .modal-overlay.active { opacity: 1; pointer-events: all; }
-        .modal-window {
-            background: #1e293b;
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            width: 100%;
-            max-width: 500px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Школьный Портал</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f7f6; color: #333; padding: 20px; }
+    .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h1, h2, h3 { margin-bottom: 15px; color: #2c3e50; }
+    button { background: #3498db; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 4px 0; transition: 0.2s; }
+    button:hover { background: #2980b9; }
+    button.danger { background: #e74c3c; }
+    button.danger:hover { background: #c0392b; }
+    button.secondary { background: #7f8c8d; }
+    input, select, textarea { width: 100%; padding: 10px; margin: 6px 0 15px 0; border: 1px solid #ccc; border-radius: 6px; }
+    .hidden { display: none !important; }
+    .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .badge { background: #2ecc71; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; }
+    /* Chat UI */
+    .chat-box { height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; background: #fff; margin-bottom: 10px; }
+    .chat-msg { margin-bottom: 8px; padding: 6px 10px; border-radius: 6px; background: #eef2f5; }
+    .chat-msg.teacher { background: #e3f2fd; }
+  </style>
 </head>
 <body>
 
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
+<div class="container">
+  <!-- Экран выбора роли -->
+  <div id="role-screen">
+    <h1>Добро пожаловать в Школьный Портал</h1>
+    <p>Выберите вашу роль для входа:</p>
+    <div style="margin: 20px 0;">
+      <button onclick="selectRole('teacher')" style="width: 100%; padding: 15px; margin-bottom: 10px;">Учитель</button>
+      <button onclick="selectRole('student')" style="width: 100%; padding: 15px; margin-bottom: 10px;">Ученик</button>
+      <button onclick="selectRole('parent')" style="width: 100%; padding: 15px;">Родитель</button>
+    </div>
+    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+      <input type="checkbox" id="remember-role" style="width: auto; margin: 0;"> Запомнить выбор на этом устройстве
+    </label>
+  </div>
+
+  <!-- Вход учителя по PIN -->
+  <div id="pin-screen" class="hidden">
+    <h2>Вход для учителя</h2>
+    <input type="password" id="pin-input" placeholder="Введите PIN-код (по умолчанию: 1234)">
+    <button onclick="verifyPin()">Войти</button>
+    <button class="secondary" onclick="resetRole()">Назад</button>
+  </div>
+
+  <!-- Панель управления -->
+  <div id="app-screen" class="hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <span id="user-status" class="badge"></span>
+      <div>
+        <button class="secondary" onclick="resetRole()">Сменить роль / Выйти</button>
+      </div>
     </div>
 
-    <div id="global-loader" class="loader-overlay">
-        <div class="spinner-container">
-            <div class="spinner-ring"></div>
-            <div class="spinner-ring-inner"></div>
+    <!-- Вью Учителя -->
+    <div id="teacher-view" class="hidden">
+      <h2>Кабинет учителя</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Настройки профиля</h3>
+          <input type="text" id="teacher-name-input" placeholder="Ваше Имя Отчество">
+          <input type="text" id="teacher-subject-input" placeholder="Ваш предмет">
+          <button onclick="saveTeacherProfile()">Сохранить профиль</button>
+          <hr style="margin: 15px 0;">
+          <h4>Изменить PIN-код</h4>
+          <input type="password" id="new-pin-input" placeholder="Новый PIN">
+          <button onclick="changePin()">Обновить PIN</button>
         </div>
-        <div class="loader-text" id="loader-status-text">Загрузка протоколов безопасности...</div>
-        <div class="loader-sub" id="loader-sub-text">Connecting to Firebase Layer</div>
-    </div>
 
-    <div class="toast-container" id="toast-hub"></div>
-
-    <div class="app-wrapper">
-        <header class="navbar">
-            <a href="#" class="brand-logo" onclick="switchView('view-roles')">
-                <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-                <span>ЭДШ<span style="color: var(--secondary);">Pro</span></span>
-            </a>
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div class="status-pill">
-                    <span class="status-dot"></span>
-                    <span>Firebase Active</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- SCREEN 1: Role Selection -->
-        <main id="view-roles" class="view-screen active">
-            <div class="roles-container">
-                <h1 class="hero-title">Единый Цифровой Дневник</h1>
-                <p class="hero-subtitle">Интеллектуальная система управления образовательным процессом</p>
-                
-                <div class="role-cards-grid">
-                    <div class="role-card-item" onclick="startAuthFlow('teacher')">
-                        <div class="role-badge-icon icon-teacher"><i class="fa-solid fa-chalkboard-user"></i></div>
-                        <h3 class="role-title">Учитель</h3>
-                        <p class="role-desc">Управление классами, выставление оценок, посещаемости и контроль журналов</p>
-                        <div class="role-action-btn">Вход с PIN / Biometrics <i class="fa-solid fa-arrow-right"></i></div>
-                    </div>
-
-                    <div class="role-card-item" onclick="startAuthFlow('student')">
-                        <div class="role-badge-icon icon-student"><i class="fa-solid fa-user-graduate"></i></div>
-                        <h3 class="role-title">Ученик</h3>
-                        <p class="role-desc">Расписание уроков, оценки, домашние задания и расчет целевого балла</p>
-                        <div class="role-action-btn">Быстрый вход по PIN <i class="fa-solid fa-arrow-right"></i></div>
-                    </div>
-
-                    <div class="role-card-item" onclick="startAuthFlow('parent')">
-                        <div class="role-badge-icon icon-parent"><i class="fa-solid fa-people-roof"></i></div>
-                        <h3 class="role-title">Родитель</h3>
-                        <p class="role-desc">Мониторинг успеваемости ребенка, уведомления об оценках и замечаниях</p>
-                        <div class="role-action-btn">Семейный доступ <i class="fa-solid fa-arrow-right"></i></div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- SCREEN 2: Teacher Auth -->
-        <section id="view-auth-teacher" class="view-screen">
-            <div class="auth-box-card">
-                <button class="btn-nav-back" onclick="switchView('view-roles')"><i class="fa-solid fa-chevron-left"></i> Назад</button>
-                <div class="auth-header">
-                    <h2><i class="fa-solid fa-key" style="color: var(--primary);"></i> Доступ Учителя</h2>
-                    <p>Введите секретный PIN (По умолчанию: 1234)</p>
-                </div>
-
-                <div class="pin-dots-container" id="teacher-dots">
-                    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-                </div>
-
-                <div class="keypad-grid">
-                    <button class="keypad-btn" onclick="pressKeypad('1')">1</button>
-                    <button class="keypad-btn" onclick="pressKeypad('2')">2</button>
-                    <button class="keypad-btn" onclick="pressKeypad('3')">3</button>
-                    <button class="keypad-btn" onclick="pressKeypad('4')">4</button>
-                    <button class="keypad-btn" onclick="pressKeypad('5')">5</button>
-                    <button class="keypad-btn" onclick="pressKeypad('6')">6</button>
-                    <button class="keypad-btn" onclick="pressKeypad('7')">7</button>
-                    <button class="keypad-btn" onclick="pressKeypad('8')">8</button>
-                    <button class="keypad-btn" onclick="pressKeypad('9')">9</button>
-                    <button class="keypad-btn" onclick="clearKeypad()"><i class="fa-solid fa-trash-can"></i></button>
-                    <button class="keypad-btn" onclick="pressKeypad('0')">0</button>
-                    <button class="keypad-btn" onclick="simulateBiometrics()"><i class="fa-solid fa-fingerprint" style="color: var(--accent);"></i></button>
-                </div>
-            </div>
-        </section>
-
-        <!-- SCREEN 3: Student Auth -->
-        <section id="view-auth-student" class="view-screen">
-            <div class="auth-box-card">
-                <button class="btn-nav-back" onclick="switchView('view-roles')"><i class="fa-solid fa-chevron-left"></i> Назад</button>
-                <div class="auth-header">
-                    <h2><i class="fa-solid fa-address-card" style="color: var(--secondary);"></i> Кабинет Ученика</h2>
-                    <p>Выберите имя из списка и введите свой PIN</p>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Ученик</label>
-                    <select id="student-select-dropdown" class="form-control"></select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Персональный PIN</label>
-                    <input type="password" id="student-pin-input" class="form-control" placeholder="••••••" maxlength="6">
-                </div>
-
-                <button class="btn-submit" onclick="submitStudentAuth()">Войти в дневник</button>
-            </div>
-        </section>
-
-        <!-- SCREEN 4: Parent Auth -->
-        <section id="view-auth-parent" class="view-screen">
-            <div class="auth-box-card">
-                <button class="btn-nav-back" onclick="switchView('view-roles')"><i class="fa-solid fa-chevron-left"></i> Назад</button>
-                <div class="auth-header">
-                    <h2><i class="fa-solid fa-shield-heart" style="color: var(--accent);"></i> Родительский Контроль</h2>
-                    <p>Введите код доступа для мониторинга</p>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Ваш ребёнок</label>
-                    <select id="parent-select-dropdown" class="form-control"></select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">PIN доступа</label>
-                    <input type="password" id="parent-pin-input" class="form-control" placeholder="••••••" maxlength="6">
-                </div>
-
-                <button class="btn-submit" style="background: linear-gradient(135deg, var(--accent), #10b981);" onclick="submitParentAuth()">Безопасный вход</button>
-            </div>
-        </section>
-
-        <!-- SCREEN 5: Teacher Dashboard -->
-        <section id="view-dash-teacher" class="view-screen">
-            <div class="dashboard-layout">
-                <aside class="sidebar-card">
-                    <div class="user-profile-badge">
-                        <div class="user-avatar"><i class="fa-solid fa-user-tie"></i></div>
-                        <div>
-                            <h3>Елена Сергеевна</h3>
-                            <p style="font-size:0.85rem; color:var(--text-muted)">Учитель Математики</p>
-                        </div>
-                    </div>
-                    <ul class="side-menu">
-                        <li class="side-menu-item active" onclick="switchTeacherTab('tab-journal')"><i class="fa-solid fa-book-open"></i> Журнал Оценок</li>
-                        <li class="side-menu-item" onclick="switchTeacherTab('tab-add-student')"><i class="fa-solid fa-user-plus"></i> Новый Ученик</li>
-                        <li class="side-menu-item" onclick="switchTeacherTab('tab-audit')"><i class="fa-solid fa-shield-halved"></i> Логи Безопасности</li>
-                        <li class="side-menu-item" style="color: var(--grade-2);" onclick="switchView('view-roles')"><i class="fa-solid fa-power-off"></i> Выйти</li>
-                    </ul>
-                </aside>
-
-                <main>
-                    <div id="tab-journal" class="dash-content-card">
-                        <div class="content-header">
-                            <h2>Электронный Журнал</h2>
-                            <select id="teacher-class-filter" class="form-control" style="width: auto;" onchange="renderTeacherJournalTable()"></select>
-                        </div>
-
-                        <div style="overflow-x: auto;">
-                            <table class="modern-table">
-                                <thead>
-                                    <tr>
-                                        <th>ФИО Ученика</th>
-                                        <th>Класс</th>
-                                        <th>ID</th>
-                                        <th>PIN-код</th>
-                                        <th>Оценки</th>
-                                        <th>Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="teacher-journal-rows"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div id="tab-add-student" class="dash-content-card" style="display: none;">
-                        <div class="content-header"><h2>Регистрация нового ученика</h2></div>
-                        <div style="max-width: 500px;">
-                            <div class="form-group">
-                                <label class="form-label">Класс</label>
-                                <select id="new-student-class" class="form-control"></select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">ФИО Ученика</label>
-                                <input type="text" id="new-student-fullname" class="form-control" placeholder="Иванов Иван Сергеевич">
-                            </div>
-                            <button class="btn-submit" onclick="createNewStudentRecord()">Зарегистрировать</button>
-                        </div>
-                    </div>
-
-                    <div id="tab-audit" class="dash-content-card" style="display: none;">
-                        <div class="content-header"><h2>Журнал аудита</h2></div>
-                        <div id="audit-logs-container" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; max-height: 350px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px;"></div>
-                    </div>
-                </main>
-            </div>
-        </section>
-
-        <!-- SCREEN 6: Student Dashboard -->
-        <section id="view-dash-student" class="view-screen">
-            <div class="dashboard-layout">
-                <aside class="sidebar-card">
-                    <div class="user-profile-badge">
-                        <div class="user-avatar" id="student-avatar-letter">У</div>
-                        <div>
-                            <h3 id="student-dash-fullname">Ученик</h3>
-                            <p id="student-dash-classbadge" style="font-size: 0.85rem; color:var(--text-muted)">10-А</p>
-                        </div>
-                    </div>
-                    <ul class="side-menu">
-                        <li class="side-menu-item active" onclick="switchStudentTab('tab-grades')"><i class="fa-solid fa-star"></i> Оценки</li>
-                        <li class="side-menu-item" onclick="switchStudentTab('tab-schedule')"><i class="fa-solid fa-calendar-days"></i> Расписание</li>
-                        <li class="side-menu-item" style="color: var(--grade-2);" onclick="switchView('view-roles')"><i class="fa-solid fa-power-off"></i> Выйти</li>
-                    </ul>
-                </aside>
-
-                <main>
-                    <div id="student-tab-grades" class="dash-content-card">
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div style="font-size:0.8rem; color:var(--text-muted)">Средний балл</div>
-                                <div class="stat-value" id="stat-avg-grade">4.85</div>
-                            </div>
-                            <div class="stat-card">
-                                <div style="font-size:0.8rem; color:var(--text-muted)">Всего оценок</div>
-                                <div class="stat-value" id="stat-total-count">18</div>
-                            </div>
-                        </div>
-
-                        <div class="content-header"><h2>Успеваемость по предметам</h2></div>
-                        <table class="modern-table">
-                            <thead>
-                                <tr>
-                                    <th>Предмет</th>
-                                    <th>Оценки</th>
-                                    <th>Средний балл</th>
-                                </tr>
-                            </thead>
-                            <tbody id="student-grades-table-body"></tbody>
-                        </table>
-                    </div>
-
-                    <div id="student-tab-schedule" class="dash-content-card" style="display: none;">
-                        <div class="content-header"><h2>Расписание уроков</h2></div>
-                        <div class="timetable-card">
-                            <span>08:30 - 09:15</span>
-                            <span>1. Математика</span>
-                            <span class="grade-badge grade-5">5</span>
-                        </div>
-                        <div class="timetable-card">
-                            <span>09:25 - 10:10</span>
-                            <span>2. Физика</span>
-                            <span class="grade-badge grade-4">4</span>
-                        </div>
-                    </div>
-                </main>
-            </div>
-        </section>
-    </div>
-
-    <!-- Modal Grade -->
-    <div id="modal-add-grade" class="modal-overlay">
-        <div class="modal-window">
-            <h3 style="margin-bottom:16px;">Выставить оценку</h3>
-            <div class="form-group">
-                <label class="form-label">Предмет</label>
-                <select id="modal-grade-subject" class="form-control">
-                    <option value="Математика">Математика</option>
-                    <option value="Физика">Физика</option>
-                    <option value="Информатика">Информатика</option>
-                    <option value="Русский язык">Русский язык</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Выберите оценку</label>
-                <div style="display:flex; gap:12px; margin-top:10px;">
-                    <button class="grade-badge grade-5" style="width:45px; height:45px;" onclick="selectModalGradeValue(5)">5</button>
-                    <button class="grade-badge grade-4" style="width:45px; height:45px;" onclick="selectModalGradeValue(4)">4</button>
-                    <button class="grade-badge grade-3" style="width:45px; height:45px;" onclick="selectModalGradeValue(3)">3</button>
-                    <button class="grade-badge grade-2" style="width:45px; height:45px;" onclick="selectModalGradeValue(2)">2</button>
-                </div>
-            </div>
-            <div style="display:flex; gap:12px; margin-top:20px;">
-                <button class="btn-submit" style="background:rgba(255,255,255,0.1);" onclick="closeGradeModal()">Отмена</button>
-                <button class="btn-submit" onclick="saveGradeFromModal()">Сохранить</button>
-            </div>
+        <div class="card">
+          <h3>Управление классами и учениками</h3>
+          <input type="text" id="new-class-name" placeholder="Название класса (напр. 9-А)">
+          <button onclick="addClass()">Добавить класс</button>
+          <hr style="margin: 15px 0;">
+          <h4>Ученики</h4>
+          <select id="student-class-select"></select>
+          <input type="text" id="new-student-name" placeholder="ФИО Ученика">
+          <button onclick="addStudent()">Добавить ученика</button>
         </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <h3>Список учеников и успеваемость</h3>
+        <div id="teacher-students-list"></div>
+      </div>
+
+      <div class="card">
+        <h3>Управление расписанием</h3>
+        <select id="schedule-class-select" onchange="loadScheduleView()"></select>
+        <textarea id="schedule-text" rows="4" placeholder="Пн: Математика&#10;Вт: Физика..."></textarea>
+        <button onclick="saveSchedule()">Сохранить расписание</button>
+      </div>
     </div>
 
-    <script>
-        const firebaseConfig = { databaseURL: "https://journal-64b12-default-rtdb.firebaseio.com/" };
-        let firebaseDb = null;
-        try { firebase.initializeApp(firebaseConfig); firebaseDb = firebase.database(); } catch(e){}
+    <!-- Вью Ученика -->
+    <div id="student-view" class="hidden">
+      <h2>Кабинет ученика</h2>
+      <div class="card">
+        <h3>Ученик: <span id="student-display-name"></span></h3>
+        <h4>Мои оценки:</h4>
+        <div id="student-grades-list"></div>
+      </div>
+      <div class="card">
+        <h3>Расписание уроков</h3>
+        <div id="student-schedule-display"></div>
+      </div>
+    </div>
 
-        let appState = JSON.parse(localStorage.getItem('edsh_pro_data')) || {
-            classes: ['10-А', '11-Б'],
-            students: [
-                { id: 'STU-9402', name: 'Александр Соколов', class: '10-А', pinPlain: '123456', grades: { 'Математика': [5, 5, 4, 5], 'Физика': [5, 4, 4], 'Информатика': [5, 5, 5] } },
-                { id: 'STU-3819', name: 'Мария Воронова', class: '10-А', pinPlain: '654321', grades: { 'Математика': [4, 4, 3, 5], 'Информатика': [5, 4, 5] } }
-            ],
-            logs: []
-        };
+    <!-- Вью Родителя -->
+    <div id="parent-view" class="hidden">
+      <h2>Кабинет родителя</h2>
+      <div class="card">
+        <h3>Успеваемость ребенка</h3>
+        <label>Выберите ученика:</label>
+        <select id="parent-student-select" onchange="renderParentStats()"></select>
+        <button onclick="checkPerformanceAI()" style="margin-top: 10px; background: #9b59b6;">Проверить успеваемость (Анализ)</button>
+        <div id="parent-stats-display" style="margin-top: 15px;"></div>
+      </div>
+    </div>
 
-        let currentKeypadInput = '';
-        let selectedStudentIndexForGrade = null;
-        let selectedModalGradeVal = 5;
+    <!-- Общий чат -->
+    <div class="card" style="margin-top: 20px;">
+      <h3>Общий Школьный Чат</h3>
+      <div id="chat-box" class="chat-box"></div>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="chat-input" placeholder="Введите сообщение..." style="margin: 0;">
+        <button onclick="sendMessage()">Отправить</button>
+      </div>
+    </div>
 
-        function saveState() {
-            localStorage.setItem('edsh_pro_data', JSON.stringify(appState));
-            if (firebaseDb) firebaseDb.ref('journal_state').set(appState);
-        }
+  </div>
+</div>
 
-        function showToast(msg, type='info') {
-            const hub = document.getElementById('toast-hub');
-            const t = document.createElement('div');
-            t.className = 'toast-item';
-            t.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> <span>${msg}</span>`;
-            hub.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
+<script>
+  // 1. КОНФИГУРАЦИЯ FIREBASE (Замените на свои ключи из консоли Firebase)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
 
-        function addSecurityLog(action, user='Система') {
-            appState.logs.unshift({ timestamp: new Date().toLocaleTimeString('ru-RU'), user: user, action: action });
-            saveState();
-        }
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-        function triggerLoader(statusText, subText, cb) {
-            const l = document.getElementById('global-loader');
-            document.getElementById('loader-status-text').innerText = statusText;
-            document.getElementById('loader-sub-text').innerText = subText;
-            l.classList.add('active');
-            setTimeout(() => { l.classList.remove('active'); if(cb) cb(); }, 600);
-        }
+  // Состояние приложения
+  let currentRole = null;
+  let currentPin = "1234";
+  let appData = { config: {}, classes: {}, students: {}, schedule: {}, chat: {} };
 
-        function switchView(viewId) {
-            triggerLoader('Загрузка...', 'Проверка доступов', () => {
-                document.querySelectorAll('.view-screen').forEach(e => e.classList.remove('active'));
-                document.getElementById(viewId).classList.add('active');
-            });
-        }
+  // 2. ИНИЦИАЛИЗАЦИЯ И СИНХРОНИЗАЦИЯ С БАЗОЙ ДАННЫХ
+  window.onload = () => {
+    // Подписка на изменения в базе данных в REALTIME
+    db.ref().on('value', (snapshot) => {
+      const data = snapshot.val() || {};
+      appData = data;
+      if (data.config && data.config.teacherPin) {
+        currentPin = data.config.teacherPin;
+      }
+      renderUI();
+    });
 
-        function startAuthFlow(role) {
-            if (role === 'teacher') { currentKeypadInput = ''; updateTeacherDots(); switchView('view-auth-teacher'); }
-            else if (role === 'student') { populateDropdown('student-select-dropdown'); switchView('view-auth-student'); }
-            else if (role === 'parent') { populateDropdown('parent-select-dropdown'); switchView('view-auth-parent'); }
-        }
+    // Авто-вход при запомненной роли
+    const savedRole = localStorage.getItem('savedSchoolRole');
+    if (savedRole) {
+      document.getElementById('remember-role').checked = true;
+      selectRole(savedRole, true);
+    }
+  };
 
-        function populateDropdown(id) {
-            document.getElementById(id).innerHTML = appState.students.map((s, idx) => `<option value="${idx}">${s.name} (${s.class})</option>`).join('');
-        }
+  // 3. УПРАВЛЕНИЕ РОЛЯМИ И АВТОРИЗАЦИЕЙ
+  function selectRole(role, isAuto = false) {
+    currentRole = role;
+    if (document.getElementById('remember-role').checked) {
+      localStorage.setItem('savedSchoolRole', role);
+    } else {
+      localStorage.removeItem('savedSchoolRole');
+    }
 
-        function pressKeypad(num) {
-            if (currentKeypadInput.length < 4) {
-                currentKeypadInput += num;
-                updateTeacherDots();
-                if (currentKeypadInput.length === 4) {
-                    if (currentKeypadInput === '1234') {
-                        showToast('Вход выполнен!', 'success');
-                        addSecurityLog('Успешная авторизация Учителя');
-                        renderTeacherDashboard();
-                        switchView('view-dash-teacher');
-                    } else {
-                        showToast('Неверный код!', 'error');
-                        currentKeypadInput = '';
-                        updateTeacherDots();
-                    }
-                }
-            }
-        }
+    if (role === 'teacher' && !isAuto) {
+      document.getElementById('role-screen').classList.add('hidden');
+      document.getElementById('pin-screen').classList.remove('hidden');
+    } else {
+      showAppScreen();
+    }
+  }
 
-        function clearKeypad() { currentKeypadInput = ''; updateTeacherDots(); }
+  function verifyPin() {
+    const enteredPin = document.getElementById('pin-input').value;
+    if (enteredPin === currentPin) {
+      document.getElementById('pin-screen').classList.add('hidden');
+      showAppScreen();
+    } else {
+      alert('Неверный PIN-код!');
+    }
+  }
 
-        function updateTeacherDots() {
-            document.querySelectorAll('#teacher-dots .pin-dot').forEach((dot, i) => {
-                if (i < currentKeypadInput.length) dot.classList.add('filled');
-                else dot.classList.remove('filled');
-            });
-        }
+  function resetRole() {
+    localStorage.removeItem('savedSchoolRole');
+    currentRole = null;
+    document.getElementById('app-screen').classList.add('hidden');
+    document.getElementById('pin-screen').classList.add('hidden');
+    document.getElementById('role-screen').classList.remove('hidden');
+  }
 
-        function simulateBiometrics() {
-            triggerLoader('Сканирование TouchID / FaceID...', 'Проверка шаблона', () => {
-                showToast('Биометрия подтверждена!');
-                renderTeacherDashboard();
-                switchView('view-dash-teacher');
-            });
-        }
+  function showAppScreen() {
+    document.getElementById('role-screen').classList.add('hidden');
+    document.getElementById('pin-screen').classList.add('hidden');
+    document.getElementById('app-screen').classList.remove('hidden');
+    renderUI();
+  }
 
-        function submitStudentAuth() {
-            const idx = document.getElementById('student-select-dropdown').value;
-            const pin = document.getElementById('student-pin-input').value;
-            const student = appState.students[idx];
+  // 4. ОТРЕСОВКА ИНТЕРФЕЙСА (UI)
+  function renderUI() {
+    if (!currentRole) return;
 
-            if (pin === student.pinPlain) {
-                showToast(`С возвращением, ${student.name}!`);
-                renderStudentDashboard(student);
-                switchView('view-dash-student');
-            } else showToast('Неверный PIN!', 'error');
-        }
+    const statusMap = { teacher: 'Учитель', student: 'Ученик', parent: 'Родитель' };
+    document.getElementById('user-status').innerText = `Роль: ${statusMap[currentRole]}`;
 
-        function submitParentAuth() {
-            submitStudentAuth();
-        }
+    // Скрытие всех вью
+    document.getElementById('teacher-view').classList.add('hidden');
+    document.getElementById('student-view').classList.add('hidden');
+    document.getElementById('parent-view').classList.add('hidden');
 
-        function renderTeacherDashboard() {
-            document.getElementById('teacher-class-filter').innerHTML = appState.classes.map(c => `<option value="${c}">${c}</option>`).join('');
-            document.getElementById('new-student-class').innerHTML = appState.classes.map(c => `<option value="${c}">${c}</option>`).join('');
-            renderTeacherJournalTable();
-            renderAuditLogs();
-        }
+    if (currentRole === 'teacher') {
+      document.getElementById('teacher-view').classList.remove('hidden');
+      renderTeacherPanel();
+    } else if (currentRole === 'student') {
+      document.getElementById('student-view').classList.remove('hidden');
+      renderStudentPanel();
+    } else if (currentRole === 'parent') {
+      document.getElementById('parent-view').classList.remove('hidden');
+      renderParentPanel();
+    }
 
-        function renderTeacherJournalTable() {
-            const selClass = document.getElementById('teacher-class-filter').value;
-            const tbody = document.getElementById('teacher-journal-rows');
-            tbody.innerHTML = '';
+    renderChat();
+  }
 
-            appState.students.filter(s => s.class === selClass).forEach(student => {
-                const globalIndex = appState.students.findIndex(s => s.id === student.id);
-                let gradesHtml = '';
-                for (let sub in student.grades) {
-                    gradesHtml += `<div><b>${sub}:</b> ` + student.grades[sub].map(g => `<span class="grade-badge grade-${g}">${g}</span>`).join('') + `</div>`;
-                }
+  // 5. ЛОГИКА УЧИТЕЛЯ
+  function saveTeacherProfile() {
+    const name = document.getElementById('teacher-name-input').value;
+    const subject = document.getElementById('teacher-subject-input').value;
+    db.ref('config/teacher').set({ name, subject });
+    alert('Профиль сохранен!');
+  }
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${student.name}</b></td>
-                        <td>${student.class}</td>
-                        <td><code>${student.id}</code></td>
-                        <td><b>${student.pinPlain}</b></td>
-                        <td>${gradesHtml || 'Нет оценок'}</td>
-                        <td><button class="role-action-btn" style="padding:6px 12px;" onclick="openAddGradeModal(${globalIndex})">+ Оценка</button></td>
-                    </tr>
-                `;
-            });
-        }
+  function changePin() {
+    const newPin = document.getElementById('new-pin-input').value;
+    if (newPin.trim().length > 0) {
+      db.ref('config/teacherPin').set(newPin);
+      alert('PIN-код успешно изменен!');
+      document.getElementById('new-pin-input').value = '';
+    }
+  }
 
-        function createNewStudentRecord() {
-            const name = document.getElementById('new-student-fullname').value.trim();
-            const cName = document.getElementById('new-student-class').value;
-            if(!name) return;
+  function addClass() {
+    const className = document.getElementById('new-class-name').value.trim();
+    if (className) {
+      const newRef = db.ref('classes').push();
+      newRef.set({ name: className });
+      document.getElementById('new-class-name').value = '';
+    }
+  }
 
-            const pin = Math.floor(100000 + Math.random() * 900000).toString();
-            appState.students.push({
-                id: 'STU-' + Math.floor(1000 + Math.random() * 9000),
-                name: name,
-                class: cName,
-                pinPlain: pin,
-                grades: { 'Математика': [], 'Физика': [], 'Информатика': [] }
-            });
-            saveState();
-            showToast(`Ученик создан! PIN: ${pin}`);
-            renderTeacherDashboard();
-            switchTeacherTab('tab-journal');
-        }
+  function addStudent() {
+    const classId = document.getElementById('student-class-select').value;
+    const name = document.getElementById('new-student-name').value.trim();
+    if (classId && name) {
+      db.ref('students').push().set({ name, classId, grades: [] });
+      document.getElementById('new-student-name').value = '';
+    }
+  }
 
-        function switchTeacherTab(tabId) {
-            ['tab-journal', 'tab-add-student', 'tab-audit'].forEach(id => {
-                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
-            });
-        }
+  function deleteStudent(studentId) {
+    if (confirm('Удалить ученика?')) {
+      db.ref(`students/${studentId}`).remove();
+    }
+  }
 
-        function renderAuditLogs() {
-            const container = document.getElementById('audit-logs-container');
-            container.innerHTML = appState.logs.map(log => `
-                <div style="margin-bottom: 6px;">[${log.timestamp}] <b>${log.user}:</b> ${log.action}</div>
-            `).join('');
-        }
+  function editStudent(studentId, currentName) {
+    const newName = prompt('Введите новое имя ученика:', currentName);
+    if (newName && newName.trim()) {
+      db.ref(`students/${studentId}/name`).set(newName.trim());
+    }
+  }
 
-        function openAddGradeModal(idx) {
-            selectedStudentIndexForGrade = idx;
-            document.getElementById('modal-add-grade').classList.add('active');
-        }
+  function addGrade(studentId) {
+    const grade = prompt('Введите оценку (2-5):');
+    if (grade && !isNaN(grade)) {
+      const student = appData.students[studentId];
+      const grades = student.grades ? [...student.grades, Number(grade)] : [Number(grade)];
+      db.ref(`students/${studentId}/grades`).set(grades);
+    }
+  }
 
-        function closeGradeModal() {
-            document.getElementById('modal-add-grade').classList.remove('active');
-        }
+  function renderTeacherPanel() {
+    // Заполнение классов
+    const classSelect = document.getElementById('student-class-select');
+    const scheduleSelect = document.getElementById('schedule-class-select');
+    classSelect.innerHTML = '';
+    scheduleSelect.innerHTML = '';
 
-        function selectModalGradeValue(val) { selectedModalGradeVal = val; }
+    const classes = appData.classes || {};
+    for (let id in classes) {
+      classSelect.innerHTML += `<option value="${id}">${classes[id].name}</option>`;
+      scheduleSelect.innerHTML += `<option value="${id}">${classes[id].name}</option>`;
+    }
 
-        function saveGradeFromModal() {
-            const sub = document.getElementById('modal-grade-subject').value;
-            const student = appState.students[selectedStudentIndexForGrade];
-            if (!student.grades[sub]) student.grades[sub] = [];
-            student.grades[sub].push(selectedModalGradeVal);
-            saveState();
-            closeGradeModal();
-            renderTeacherJournalTable();
-            showToast(`Оценка ${selectedModalGradeVal} выставлена!`);
-        }
+    // Заполнение профиля
+    if (appData.config && appData.config.teacher) {
+      document.getElementById('teacher-name-input').value = appData.config.teacher.name || '';
+      document.getElementById('teacher-subject-input').value = appData.config.teacher.subject || '';
+    }
 
-        function renderStudentDashboard(student) {
-            document.getElementById('student-dash-fullname').innerText = student.name;
-            document.getElementById('student-dash-classbadge').innerText = student.class;
-            
-            let allGrades = [];
-            const tbody = document.getElementById('student-grades-table-body');
-            tbody.innerHTML = '';
+    // Отрисовка учеников
+    const studentsList = document.getElementById('teacher-students-list');
+    studentsList.innerHTML = '';
+    const students = appData.students || {};
 
-            for (let sub in student.grades) {
-                const list = student.grades[sub];
-                allGrades = allGrades.concat(list);
-                const avg = list.length ? (list.reduce((a,b)=>a+b,0)/list.length).toFixed(2) : '-';
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${sub}</b></td>
-                        <td>${list.map(g => `<span class="grade-badge grade-${g}">${g}</span>`).join('')}</td>
-                        <td><b>${avg}</b></td>
-                    </tr>
-                `;
-            }
+    for (let id in students) {
+      const s = students[id];
+      const className = classes[s.classId] ? classes[s.classId].name : 'Без класса';
+      const gradesStr = s.grades ? s.grades.join(', ') : 'Нет оценок';
 
-            const totalAvg = allGrades.length ? (allGrades.reduce((a,b)=>a+b,0)/allGrades.length).toFixed(2) : '5.0';
-            document.getElementById('stat-avg-grade').innerText = totalAvg;
-            document.getElementById('stat-total-count').innerText = allGrades.length;
-        }
+      studentsList.innerHTML += `
+        <div style="display:flex; justify-between; align-items:center; border-bottom:1px solid #ddd; padding:8px 0;">
+          <div>
+            <strong>${s.name}</strong> (${className}) — Оценки: [${gradesStr}]
+          </div>
+          <div>
+            <button onclick="addGrade('${id}')">+ Оценка</button>
+            <button onclick="editStudent('${id}', '${s.name}')" class="secondary">Изм.</button>
+            <button onclick="deleteStudent('${id}')" class="danger">Уд.</button>
+          </div>
+        </div>
+      `;
+    }
+  }
 
-        function switchStudentTab(tabId) {
-            ['student-tab-grades', 'student-tab-schedule'].forEach(id => {
-                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
-            });
-        }
+  function saveSchedule() {
+    const classId = document.getElementById('schedule-class-select').value;
+    const text = document.getElementById('schedule-text').value;
+    if (classId) {
+      db.ref(`schedule/${classId}`).set(text);
+      alert('Расписание сохранено!');
+    }
+  }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            saveState();
-        });
-    </script>
+  function loadScheduleView() {
+    const classId = document.getElementById('schedule-class-select').value;
+    const schedule = (appData.schedule && appData.schedule[classId]) || '';
+    document.getElementById('schedule-text').value = schedule;
+  }
+
+  // 6. ЛОГИКА УЧЕНИКА
+  function renderStudentPanel() {
+    const students = appData.students || {};
+    const firstStudentId = Object.keys(students)[0];
+    if (!firstStudentId) {
+      document.getElementById('student-display-name').innerText = 'Список учеников пуст';
+      return;
+    }
+    const student = students[firstStudentId];
+    document.getElementById('student-display-name').innerText = student.name;
+    document.getElementById('student-grades-list').innerText = student.grades ? student.grades.join(', ') : 'Оценок нет';
+    
+    const schedule = (appData.schedule && appData.schedule[student.classId]) || 'Расписание не заполнено';
+    document.getElementById('student-schedule-display').innerText = schedule;
+  }
+
+  // 7. ЛОГИКА РОДИТЕЛЯ
+  function renderParentPanel() {
+    const parentSelect = document.getElementById('parent-student-select');
+    parentSelect.innerHTML = '';
+    const students = appData.students || {};
+    for (let id in students) {
+      parentSelect.innerHTML += `<option value="${id}">${students[id].name}</option>`;
+    }
+    renderParentStats();
+  }
+
+  function renderParentStats() {
+    const studentId = document.getElementById('parent-student-select').value;
+    const display = document.getElementById('parent-stats-display');
+    if (!studentId || !appData.students || !appData.students[studentId]) {
+      display.innerHTML = '<p>Выберите ученика для просмотра.</p>';
+      return;
+    }
+
+    const student = appData.students[studentId];
+    const grades = student.grades || [];
+    const avg = grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 0;
+
+    display.innerHTML = `
+      <p><strong>Ученик:</strong> ${student.name}</p>
+      <p><strong>Оценки:</strong> ${grades.length ? grades.join(', ') : 'Оценок пока нет'}</p>
+      <p><strong>Средний балл:</strong> ${avg}</p>
+    `;
+  }
+
+  function checkPerformanceAI() {
+    const studentId = document.getElementById('parent-student-select').value;
+    if (!studentId || !appData.students[studentId]) return;
+    
+    const student = appData.students[studentId];
+    const grades = student.grades || [];
+    if (grades.length === 0) {
+      alert(`Автопортрет успеваемости: У ${student.name} пока нет оценок.`);
+      return;
+    }
+    const avg = (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2);
+    let status = avg >= 4.5 ? "Отличная успеваемость!" : avg >= 3.5 ? "Хорошая успеваемость." : "Требуется подтянуть предметы!";
+    
+    alert(`📊 Автопортрет успеваемости:\nУченик: ${student.name}\nСредняя оценка: ${avg}\nСтатус: ${status}`);
+  }
+
+  // 8. ЧАТ В РЕАЛЬНОМ ВРЕМЕНИ
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (text) {
+      const senderName = currentRole === 'teacher' ? 'Учитель' : currentRole === 'parent' ? 'Родитель' : 'Ученик';
+      db.ref('chat').push().set({
+        sender: senderName,
+        role: currentRole,
+        text: text,
+        timestamp: Date.now()
+      });
+      input.value = '';
+    }
+  }
+
+  function renderChat() {
+    const chatBox = document.getElementById('chat-box');
+    chatBox.innerHTML = '';
+    const chatData = appData.chat || {};
+
+    for (let id in chatData) {
+      const msg = chatData[id];
+      chatBox.innerHTML += `
+        <div class="chat-msg ${msg.role}">
+          <strong>${msg.sender}:</strong> ${msg.text}
+        </div>
+      `;
+    }
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+</script>
 </body>
 </html>
