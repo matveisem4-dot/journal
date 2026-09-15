@@ -4,137 +4,355 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Школьный Портал</title>
+  
+  <!-- Подключение шрифтов и иконок -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #f4f7f6; color: #333; padding: 20px; }
-    .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    h1, h2, h3 { margin-bottom: 15px; color: #2c3e50; }
-    button { background: #3498db; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 4px 0; transition: 0.2s; }
-    button:hover { background: #2980b9; }
-    button.danger { background: #e74c3c; }
-    button.danger:hover { background: #c0392b; }
-    button.secondary { background: #7f8c8d; }
-    input, select, textarea { width: 100%; padding: 10px; margin: 6px 0 15px 0; border: 1px solid #ccc; border-radius: 6px; }
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --radius: 12px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    
     .hidden { display: none !important; }
-    .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-    .badge { background: #2ecc71; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; }
-    /* Chat UI */
-    .chat-box { height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; background: #fff; margin-bottom: 10px; }
-    .chat-msg { margin-bottom: 8px; padding: 6px 10px; border-radius: 6px; background: #eef2f5; }
-    .chat-msg.teacher { background: #e3f2fd; }
+
+    /* Кнопки */
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(79, 70, 229, 0.15);
+    }
+    button:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    button.secondary { background: #fff; color: var(--text-muted); border: 1px solid var(--border); box-shadow: none; }
+    button.secondary:hover { background: var(--bg); color: var(--text); }
+    button.danger { background: var(--danger); box-shadow: 0 2px 4px rgba(239, 68, 68, 0.15); }
+    button.danger:hover { background: var(--danger-hover); }
+    button.accent { background: #8b5cf6; }
+    button.accent:hover { background: #7c3aed; }
+    button.sm { padding: 6px 12px; font-size: 13px; }
+
+    /* Поля ввода и выборки */
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 14px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 14px;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    /* Карточки и Сетка */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+    
+    /* Шапка приложения */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    /* Экран выбора роли */
+    .hero-card {
+      max-width: 480px;
+      margin: 60px auto;
+      text-align: center;
+    }
+    .role-btn-group { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+    .role-btn {
+      padding: 16px;
+      font-size: 16px;
+      justify-content: flex-start;
+      background: #fff;
+      color: var(--text);
+      border: 2px solid var(--border);
+      box-shadow: none;
+    }
+    .role-btn:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+    .role-btn i { font-size: 20px; width: 30px; }
+
+    /* Элементы учеников и списков */
+    .student-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+    .grade-tag {
+      display: inline-block;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    /* Чат UI */
+    .chat-box {
+      height: 280px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 8px;
+      background: #fafafa;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-msg {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .chat-msg.teacher { align-self: flex-start; border-left: 4px solid var(--primary); }
+    .chat-msg.student { align-self: flex-start; border-left: 4px solid var(--success); }
+    .chat-msg.parent { align-self: flex-start; border-left: 4px solid var(--warning); }
+    .chat-author { font-weight: 600; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: block; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- Экран выбора роли -->
-  <div id="role-screen">
-    <h1>Добро пожаловать в Школьный Портал</h1>
-    <p>Выберите вашу роль для входа:</p>
-    <div style="margin: 20px 0;">
-      <button onclick="selectRole('teacher')" style="width: 100%; padding: 15px; margin-bottom: 10px;">Учитель</button>
-      <button onclick="selectRole('student')" style="width: 100%; padding: 15px; margin-bottom: 10px;">Ученик</button>
-      <button onclick="selectRole('parent')" style="width: 100%; padding: 15px;">Родитель</button>
+  
+  <!-- 1. ЭКРАН ВЫБОРА РОЛИ -->
+  <div id="role-screen" class="card hero-card">
+    <div style="font-size: 40px; color: var(--primary); margin-bottom: 12px;"><i class="fa-solid fa-graduation-cap"></i></div>
+    <h1 style="font-size: 24px; margin-bottom: 8px;">Школьный Портал</h1>
+    <p style="color: var(--text-muted); font-size: 14px;">Выберите вашу роль для входа в систему</p>
+
+    <div class="role-btn-group">
+      <button class="role-btn" onclick="selectRole('teacher')">
+        <i class="fa-solid fa-chalkboard-user"></i> Учитель
+      </button>
+      <button class="role-btn" onclick="selectRole('student')">
+        <i class="fa-solid fa-user-graduate"></i> Ученик
+      </button>
+      <button class="role-btn" onclick="selectRole('parent')">
+        <i class="fa-solid fa-users-between-lines"></i> Родитель
+      </button>
     </div>
-    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+
+    <label style="display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--text-muted);">
       <input type="checkbox" id="remember-role" style="width: auto; margin: 0;"> Запомнить выбор на этом устройстве
     </label>
   </div>
 
-  <!-- Вход учителя по PIN -->
-  <div id="pin-screen" class="hidden">
-    <h2>Вход для учителя</h2>
-    <input type="password" id="pin-input" placeholder="Введите PIN-код (по умолчанию: 1234)">
-    <button onclick="verifyPin()">Войти</button>
-    <button class="secondary" onclick="resetRole()">Назад</button>
+  <!-- 2. ВХОД ПО ПИН-КОДУ ИЗ FIREBASE -->
+  <div id="pin-screen" class="card hero-card hidden">
+    <div style="font-size: 36px; color: var(--primary); margin-bottom: 12px;"><i class="fa-solid fa-lock"></i></div>
+    <h2 id="pin-screen-title">Авторизация</h2>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Введите PIN-код доступа из Firebase</p>
+    
+    <input type="password" id="pin-input" placeholder="Введите PIN-код" style="text-align: center; font-size: 18px; letter-spacing: 4px;">
+    
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+      <button class="secondary" onclick="resetRole()" style="flex: 1;"><i class="fa-solid fa-arrow-left"></i> Назад</button>
+      <button onclick="verifyPin()" style="flex: 2;"><i class="fa-solid fa-right-to-bracket"></i> Войти</button>
+    </div>
   </div>
 
-  <!-- Панель управления -->
+  <!-- 3. ГЛАВНЫЙ ЭКРАН ПРИЛОЖЕНИЯ -->
   <div id="app-screen" class="hidden">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <span id="user-status" class="badge"></span>
-      <div>
-        <button class="secondary" onclick="resetRole()">Сменить роль / Выйти</button>
+    
+    <!-- Шапка -->
+    <div class="app-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <h2 style="font-size: 20px;"><i class="fa-solid fa-school" style="color: var(--primary);"></i> Портал</h2>
+        <span id="user-status" class="badge"></span>
       </div>
+      <button class="secondary sm" onclick="resetRole()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Сменить роль / Выйти</button>
     </div>
 
-    <!-- Вью Учителя -->
+    <!-- 3.1 ВЬЮ УЧИТЕЛЯ -->
     <div id="teacher-view" class="hidden">
-      <h2>Кабинет учителя</h2>
       <div class="grid">
+        
+        <!-- Профиль и PIN-коды в Firebase -->
         <div class="card">
-          <h3>Настройки профиля</h3>
-          <input type="text" id="teacher-name-input" placeholder="Ваше Имя Отчество">
-          <input type="text" id="teacher-subject-input" placeholder="Ваш предмет">
-          <button onclick="saveTeacherProfile()">Сохранить профиль</button>
-          <hr style="margin: 15px 0;">
-          <h4>Изменить PIN-код</h4>
-          <input type="password" id="new-pin-input" placeholder="Новый PIN">
-          <button onclick="changePin()">Обновить PIN</button>
+          <h3><i class="fa-solid fa-id-card"></i> Профиль учителя</h3>
+          <label style="font-size: 13px; color: var(--text-muted);">ФИО Учителя:</label>
+          <input type="text" id="teacher-name-input" placeholder="Иванов И.И.">
+          
+          <label style="font-size: 13px; color: var(--text-muted);">Преподаваемый предмет:</label>
+          <input type="text" id="teacher-subject-input" placeholder="Математика">
+          
+          <button onclick="saveTeacherProfile()" style="width: 100%;"><i class="fa-solid fa-floppy-disk"></i> Сохранить профиль</button>
+
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);">
+
+          <h3><i class="fa-solid fa-key"></i> Управление PIN-кодами в Firebase</h3>
+          
+          <label style="font-size: 13px; color: var(--text-muted);">PIN для Учителя:</label>
+          <input type="password" id="teacher-pin-edit" placeholder="Новый PIN учителя">
+          
+          <label style="font-size: 13px; color: var(--text-muted);">PIN для Ученика:</label>
+          <input type="password" id="student-pin-edit" placeholder="Новый PIN ученика">
+
+          <label style="font-size: 13px; color: var(--text-muted);">PIN для Родителя:</label>
+          <input type="password" id="parent-pin-edit" placeholder="Новый PIN родителя">
+
+          <button class="accent" onclick="updateAllPinsInFirebase()" style="width: 100%;"><i class="fa-solid fa-cloud-arrow-up"></i> Сохранить пароли в Firebase</button>
         </div>
 
+        <!-- Управление классами и учениками -->
         <div class="card">
-          <h3>Управление классами и учениками</h3>
-          <input type="text" id="new-class-name" placeholder="Название класса (напр. 9-А)">
-          <button onclick="addClass()">Добавить класс</button>
-          <hr style="margin: 15px 0;">
-          <h4>Ученики</h4>
+          <h3><i class="fa-solid fa-folder-plus"></i> Управление школой</h3>
+          
+          <label style="font-size: 13px; color: var(--text-muted);">Создать новый класс:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="new-class-name" placeholder="Напр. 9-А" style="margin-bottom: 0;">
+            <button onclick="addClass()"><i class="fa-solid fa-plus"></i></button>
+          </div>
+
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);">
+
+          <h4>Добавить ученика</h4>
+          <label style="font-size: 13px; color: var(--text-muted);">Выберите класс:</label>
           <select id="student-class-select"></select>
-          <input type="text" id="new-student-name" placeholder="ФИО Ученика">
-          <button onclick="addStudent()">Добавить ученика</button>
+
+          <label style="font-size: 13px; color: var(--text-muted);">ФИО Ученика:</label>
+          <input type="text" id="new-student-name" placeholder="Петров Алексей">
+          
+          <button onclick="addStudent()" style="width: 100%;"><i class="fa-solid fa-user-plus"></i> Добавить ученика</button>
         </div>
+
       </div>
 
-      <div class="card" style="margin-top: 20px;">
-        <h3>Список учеников и успеваемость</h3>
+      <!-- Список учеников -->
+      <div class="card">
+        <h3><i class="fa-solid fa-users"></i> Список учеников и успеваемость</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Управляйте оценками, меняйте имена и удаляйте учеников при необходимости.</p>
         <div id="teacher-students-list"></div>
       </div>
 
+      <!-- Расписание -->
       <div class="card">
-        <h3>Управление расписанием</h3>
+        <h3><i class="fa-solid fa-calendar-days"></i> Управление расписанием</h3>
+        <label style="font-size: 13px; color: var(--text-muted);">Выберите класс:</label>
         <select id="schedule-class-select" onchange="loadScheduleView()"></select>
-        <textarea id="schedule-text" rows="4" placeholder="Пн: Математика&#10;Вт: Физика..."></textarea>
-        <button onclick="saveSchedule()">Сохранить расписание</button>
+        
+        <label style="font-size: 13px; color: var(--text-muted);">Расписание занятий:</label>
+        <textarea id="schedule-text" rows="4" placeholder="Понедельник: Алгебра&#10;Вторник: Геометрия..."></textarea>
+        <button onclick="saveSchedule()"><i class="fa-solid fa-save"></i> Сохранить расписание</button>
       </div>
     </div>
 
-    <!-- Вью Ученика -->
+    <!-- 3.2 ВЬЮ УЧЕНИКА -->
     <div id="student-view" class="hidden">
-      <h2>Кабинет ученика</h2>
-      <div class="card">
-        <h3>Ученик: <span id="student-display-name"></span></h3>
-        <h4>Мои оценки:</h4>
-        <div id="student-grades-list"></div>
-      </div>
-      <div class="card">
-        <h3>Расписание уроков</h3>
-        <div id="student-schedule-display"></div>
+      <div class="grid">
+        <div class="card">
+          <h3><i class="fa-solid fa-user-graduate"></i> Ученик: <span id="student-display-name" style="color: var(--primary);"></span></h3>
+          <h4 style="margin-top: 16px; margin-bottom: 8px;">Мои оценки:</h4>
+          <div id="student-grades-list" style="font-size: 18px;"></div>
+        </div>
+
+        <div class="card">
+          <h3><i class="fa-solid fa-calendar-week"></i> Расписание уроков</h3>
+          <div id="student-schedule-display" style="white-space: pre-line; line-height: 1.6; color: var(--text-muted);"></div>
+        </div>
       </div>
     </div>
 
-    <!-- Вью Родителя -->
+    <!-- 3.3 ВЬЮ РОДИТЕЛЯ -->
     <div id="parent-view" class="hidden">
-      <h2>Кабинет родителя</h2>
       <div class="card">
-        <h3>Успеваемость ребенка</h3>
-        <label>Выберите ученика:</label>
+        <h3><i class="fa-solid fa-chart-line"></i> Успеваемость ребенка</h3>
+        
+        <label style="font-size: 13px; color: var(--text-muted);">Выберите ученика из списка:</label>
         <select id="parent-student-select" onchange="renderParentStats()"></select>
-        <button onclick="checkPerformanceAI()" style="margin-top: 10px; background: #9b59b6;">Проверить успеваемость (Анализ)</button>
-        <div id="parent-stats-display" style="margin-top: 15px;"></div>
+
+        <button class="accent" onclick="checkPerformanceAI()" style="margin-bottom: 16px;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Проверить успеваемость (Автопортрет)
+        </button>
+
+        <div id="parent-stats-display"></div>
       </div>
     </div>
 
-    <!-- Общий чат -->
-    <div class="card" style="margin-top: 20px;">
-      <h3>Общий Школьный Чат</h3>
+    <!-- 3.4 ОБЩИЙ ЧАТ -->
+    <div class="card">
+      <h3><i class="fa-solid fa-comments"></i> Школьный онлайн-чат</h3>
       <div id="chat-box" class="chat-box"></div>
       <div style="display: flex; gap: 10px;">
-        <input type="text" id="chat-input" placeholder="Введите сообщение..." style="margin: 0;">
-        <button onclick="sendMessage()">Отправить</button>
+        <input type="text" id="chat-input" placeholder="Напишите сообщение..." style="margin: 0;">
+        <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
       </div>
     </div>
 
@@ -142,7 +360,7 @@
 </div>
 
 <script>
-  // 1. КОНФИГУРАЦИЯ FIREBASE (Замените на свои ключи из консоли Firebase)
+  // 1. КОНФИГУРАЦИЯ FIREBASE (Укажите свои данные)
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -158,22 +376,28 @@
 
   // Состояние приложения
   let currentRole = null;
-  let currentPin = "1234";
-  let appData = { config: {}, classes: {}, students: {}, schedule: {}, chat: {} };
+  let selectedRoleForLogin = null;
+  let appData = { passwords: {}, config: {}, classes: {}, students: {}, schedule: {}, chat: {} };
 
-  // 2. ИНИЦИАЛИЗАЦИЯ И СИНХРОНИЗАЦИЯ С БАЗОЙ ДАННЫХ
+  // 2. ИНИЦИАЛИЗАЦИЯ И СИНХРОНИЗАЦИЯ С БАЗОЙ ДАННЫХ В REALTIME
   window.onload = () => {
-    // Подписка на изменения в базе данных в REALTIME
     db.ref().on('value', (snapshot) => {
       const data = snapshot.val() || {};
       appData = data;
-      if (data.config && data.config.teacherPin) {
-        currentPin = data.config.teacherPin;
+
+      // Автоматическое создание паролей в Firebase по умолчанию, если их там ещё нет
+      if (!data.passwords) {
+        db.ref('passwords').set({
+          teacher: "1234",
+          student: "1111",
+          parent: "2222"
+        });
       }
+
       renderUI();
     });
 
-    // Авто-вход при запомненной роли
+    // Проверка сохраненной роли для автовхода
     const savedRole = localStorage.getItem('savedSchoolRole');
     if (savedRole) {
       document.getElementById('remember-role').checked = true;
@@ -181,36 +405,47 @@
     }
   };
 
-  // 3. УПРАВЛЕНИЕ РОЛЯМИ И АВТОРИЗАЦИЕЙ
+  // 3. АВТОРИЗАЦИЯ И ПРОВЕРКА ПАРОЛЕЙ ИЗ FIREBASE
   function selectRole(role, isAuto = false) {
-    currentRole = role;
+    selectedRoleForLogin = role;
+
     if (document.getElementById('remember-role').checked) {
       localStorage.setItem('savedSchoolRole', role);
     } else {
       localStorage.removeItem('savedSchoolRole');
     }
 
-    if (role === 'teacher' && !isAuto) {
+    if (!isAuto) {
       document.getElementById('role-screen').classList.add('hidden');
       document.getElementById('pin-screen').classList.remove('hidden');
+      
+      const titleMap = { teacher: 'Учитель', student: 'Ученик', parent: 'Родитель' };
+      document.getElementById('pin-screen-title').innerText = `Вход: ${titleMap[role]}`;
+      document.getElementById('pin-input').value = '';
     } else {
+      currentRole = role;
       showAppScreen();
     }
   }
 
   function verifyPin() {
-    const enteredPin = document.getElementById('pin-input').value;
-    if (enteredPin === currentPin) {
+    const enteredPin = document.getElementById('pin-input').value.trim();
+    const storedPasswords = appData.passwords || {};
+    const correctPin = storedPasswords[selectedRoleForLogin];
+
+    if (enteredPin === correctPin) {
+      currentRole = selectedRoleForLogin;
       document.getElementById('pin-screen').classList.add('hidden');
       showAppScreen();
     } else {
-      alert('Неверный PIN-код!');
+      alert('Неверный PIN-код! Проверьте пароль в базе данных Firebase.');
     }
   }
 
   function resetRole() {
     localStorage.removeItem('savedSchoolRole');
     currentRole = null;
+    selectedRoleForLogin = null;
     document.getElementById('app-screen').classList.add('hidden');
     document.getElementById('pin-screen').classList.add('hidden');
     document.getElementById('role-screen').classList.remove('hidden');
@@ -228,9 +463,8 @@
     if (!currentRole) return;
 
     const statusMap = { teacher: 'Учитель', student: 'Ученик', parent: 'Родитель' };
-    document.getElementById('user-status').innerText = `Роль: ${statusMap[currentRole]}`;
+    document.getElementById('user-status').innerHTML = `<i class="fa-solid fa-user-tag"></i> Роль: ${statusMap[currentRole]}`;
 
-    // Скрытие всех вью
     document.getElementById('teacher-view').classList.add('hidden');
     document.getElementById('student-view').classList.add('hidden');
     document.getElementById('parent-view').classList.add('hidden');
@@ -249,28 +483,36 @@
     renderChat();
   }
 
-  // 5. ЛОГИКА УЧИТЕЛЯ
+  // 5. ДЕЙСТВИЯ УЧИТЕЛЯ И УПРАВЛЕНИЕ ПАРОЛЯМИ В FIREBASE
   function saveTeacherProfile() {
     const name = document.getElementById('teacher-name-input').value;
     const subject = document.getElementById('teacher-subject-input').value;
     db.ref('config/teacher').set({ name, subject });
-    alert('Профиль сохранен!');
+    alert('Профиль сохранен в Firebase!');
   }
 
-  function changePin() {
-    const newPin = document.getElementById('new-pin-input').value;
-    if (newPin.trim().length > 0) {
-      db.ref('config/teacherPin').set(newPin);
-      alert('PIN-код успешно изменен!');
-      document.getElementById('new-pin-input').value = '';
-    }
+  function updateAllPinsInFirebase() {
+    const teacherPin = document.getElementById('teacher-pin-edit').value.trim();
+    const studentPin = document.getElementById('student-pin-edit').value.trim();
+    const parentPin = document.getElementById('parent-pin-edit').value.trim();
+
+    const currentPins = appData.passwords || {};
+
+    const newPasswords = {
+      teacher: teacherPin || currentPins.teacher || "1234",
+      student: studentPin || currentPins.student || "1111",
+      parent: parentPin || currentPins.parent || "2222"
+    };
+
+    db.ref('passwords').set(newPasswords).then(() => {
+      alert('Пароли успешно обновлены в Firebase!');
+    });
   }
 
   function addClass() {
     const className = document.getElementById('new-class-name').value.trim();
     if (className) {
-      const newRef = db.ref('classes').push();
-      newRef.set({ name: className });
+      db.ref('classes').push().set({ name: className });
       document.getElementById('new-class-name').value = '';
     }
   }
@@ -291,14 +533,14 @@
   }
 
   function editStudent(studentId, currentName) {
-    const newName = prompt('Введите новое имя ученика:', currentName);
+    const newName = prompt('Измените имя ученика:', currentName);
     if (newName && newName.trim()) {
       db.ref(`students/${studentId}/name`).set(newName.trim());
     }
   }
 
   function addGrade(studentId) {
-    const grade = prompt('Введите оценку (2-5):');
+    const grade = prompt('Введите оценку (от 2 до 5):');
     if (grade && !isNaN(grade)) {
       const student = appData.students[studentId];
       const grades = student.grades ? [...student.grades, Number(grade)] : [Number(grade)];
@@ -307,7 +549,6 @@
   }
 
   function renderTeacherPanel() {
-    // Заполнение классов
     const classSelect = document.getElementById('student-class-select');
     const scheduleSelect = document.getElementById('schedule-class-select');
     classSelect.innerHTML = '';
@@ -319,31 +560,43 @@
       scheduleSelect.innerHTML += `<option value="${id}">${classes[id].name}</option>`;
     }
 
-    // Заполнение профиля
     if (appData.config && appData.config.teacher) {
       document.getElementById('teacher-name-input').value = appData.config.teacher.name || '';
       document.getElementById('teacher-subject-input').value = appData.config.teacher.subject || '';
     }
 
-    // Отрисовка учеников
+    // Отображение текущих паролей из Firebase в полях ввода
+    const passwords = appData.passwords || {};
+    document.getElementById('teacher-pin-edit').value = passwords.teacher || '';
+    document.getElementById('student-pin-edit').value = passwords.student || '';
+    document.getElementById('parent-pin-edit').value = passwords.parent || '';
+
     const studentsList = document.getElementById('teacher-students-list');
     studentsList.innerHTML = '';
     const students = appData.students || {};
 
+    if (Object.keys(students).length === 0) {
+      studentsList.innerHTML = '<p style="color:var(--text-muted); font-size:14px;">Список учеников пуст. Добавьте первого ученика выше.</p>';
+      return;
+    }
+
     for (let id in students) {
       const s = students[id];
       const className = classes[s.classId] ? classes[s.classId].name : 'Без класса';
-      const gradesStr = s.grades ? s.grades.join(', ') : 'Нет оценок';
+      const gradesTags = s.grades 
+        ? s.grades.map(g => `<span class="grade-tag">${g}</span>`).join('') 
+        : '<span style="color:var(--text-muted); font-size:13px;">Оценок нет</span>';
 
       studentsList.innerHTML += `
-        <div style="display:flex; justify-between; align-items:center; border-bottom:1px solid #ddd; padding:8px 0;">
+        <div class="student-item">
           <div>
-            <strong>${s.name}</strong> (${className}) — Оценки: [${gradesStr}]
+            <strong>${s.name}</strong> <span style="color:var(--text-muted); font-size:13px;">(${className})</span>
+            <div style="margin-top:6px;">${gradesTags}</div>
           </div>
-          <div>
-            <button onclick="addGrade('${id}')">+ Оценка</button>
-            <button onclick="editStudent('${id}', '${s.name}')" class="secondary">Изм.</button>
-            <button onclick="deleteStudent('${id}')" class="danger">Уд.</button>
+          <div style="display:flex; gap:6px;">
+            <button class="sm" onclick="addGrade('${id}')"><i class="fa-solid fa-plus"></i> Оценка</button>
+            <button class="secondary sm" onclick="editStudent('${id}', '${s.name}')"><i class="fa-solid fa-pen"></i></button>
+            <button class="danger sm" onclick="deleteStudent('${id}')"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>
       `;
@@ -365,23 +618,31 @@
     document.getElementById('schedule-text').value = schedule;
   }
 
-  // 6. ЛОГИКА УЧЕНИКА
+  // 6. ДЕЙСТВИЯ УЧЕНИКА
   function renderStudentPanel() {
     const students = appData.students || {};
     const firstStudentId = Object.keys(students)[0];
+    
     if (!firstStudentId) {
-      document.getElementById('student-display-name').innerText = 'Список учеников пуст';
+      document.getElementById('student-display-name').innerText = 'Нет данных';
+      document.getElementById('student-grades-list').innerHTML = '<p style="color:var(--text-muted); font-size:14px;">Ученики ещё не созданы учителем.</p>';
       return;
     }
+
     const student = students[firstStudentId];
     document.getElementById('student-display-name').innerText = student.name;
-    document.getElementById('student-grades-list').innerText = student.grades ? student.grades.join(', ') : 'Оценок нет';
+
+    const gradesTags = student.grades 
+      ? student.grades.map(g => `<span class="grade-tag" style="font-size:16px; padding:4px 10px;">${g}</span>`).join('') 
+      : '<p style="color:var(--text-muted); font-size:14px;">Оценок нет</p>';
+
+    document.getElementById('student-grades-list').innerHTML = gradesTags;
     
-    const schedule = (appData.schedule && appData.schedule[student.classId]) || 'Расписание не заполнено';
+    const schedule = (appData.schedule && appData.schedule[student.classId]) || 'Расписание еще не составлено.';
     document.getElementById('student-schedule-display').innerText = schedule;
   }
 
-  // 7. ЛОГИКА РОДИТЕЛЯ
+  // 7. ДЕЙСТВИЯ РОДИТЕЛЯ
   function renderParentPanel() {
     const parentSelect = document.getElementById('parent-student-select');
     parentSelect.innerHTML = '';
@@ -395,8 +656,9 @@
   function renderParentStats() {
     const studentId = document.getElementById('parent-student-select').value;
     const display = document.getElementById('parent-stats-display');
+    
     if (!studentId || !appData.students || !appData.students[studentId]) {
-      display.innerHTML = '<p>Выберите ученика для просмотра.</p>';
+      display.innerHTML = '<p style="color:var(--text-muted);">Выберите ученика для просмотра.</p>';
       return;
     }
 
@@ -404,10 +666,16 @@
     const grades = student.grades || [];
     const avg = grades.length ? (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2) : 0;
 
+    const gradesTags = grades.length 
+      ? grades.map(g => `<span class="grade-tag">${g}</span>`).join('') 
+      : '<span style="color:var(--text-muted);">Нет оценок</span>';
+
     display.innerHTML = `
-      <p><strong>Ученик:</strong> ${student.name}</p>
-      <p><strong>Оценки:</strong> ${grades.length ? grades.join(', ') : 'Оценок пока нет'}</p>
-      <p><strong>Средний балл:</strong> ${avg}</p>
+      <div style="background:var(--bg); padding:16px; border-radius:8px; border:1px solid var(--border);">
+        <p style="margin-bottom:8px;"><strong>Ученик:</strong> ${student.name}</p>
+        <p style="margin-bottom:8px;"><strong>Текущие оценки:</strong> ${gradesTags}</p>
+        <p style="font-size:16px; margin-top:12px;"><strong>Средний балл:</strong> <span style="color:var(--primary); font-weight:700;">${avg}</span></p>
+      </div>
     `;
   }
 
@@ -417,17 +685,19 @@
     
     const student = appData.students[studentId];
     const grades = student.grades || [];
+    
     if (grades.length === 0) {
-      alert(`Автопортрет успеваемости: У ${student.name} пока нет оценок.`);
+      alert(`Автопортрет успеваемости:\nУ ${student.name} пока нет оценок.`);
       return;
     }
+
     const avg = (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2);
-    let status = avg >= 4.5 ? "Отличная успеваемость!" : avg >= 3.5 ? "Хорошая успеваемость." : "Требуется подтянуть предметы!";
+    let status = avg >= 4.5 ? "Отличная успеваемость! 🌟" : avg >= 3.5 ? "Хорошая успеваемость. 👍" : "Требуется подтянуть предметы! ⚠️";
     
-    alert(`📊 Автопортрет успеваемости:\nУченик: ${student.name}\nСредняя оценка: ${avg}\nСтатус: ${status}`);
+    alert(`📊 Автопортрет успеваемости:\n\nУченик: ${student.name}\nСредняя оценка: ${avg}\nСтатус: ${status}`);
   }
 
-  // 8. ЧАТ В РЕАЛЬНОМ ВРЕМЕНИ
+  // 8. СИНХРОНИЗИРУЕМЫЙ ЧАТ
   function sendMessage() {
     const input = document.getElementById('chat-input');
     const text = input.value.trim();
@@ -452,7 +722,8 @@
       const msg = chatData[id];
       chatBox.innerHTML += `
         <div class="chat-msg ${msg.role}">
-          <strong>${msg.sender}:</strong> ${msg.text}
+          <span class="chat-author">${msg.sender}</span>
+          ${msg.text}
         </div>
       `;
     }
