@@ -877,10 +877,7 @@
             <button class="device-btn" id="btn-device-mobile" onclick="setDeviceMode('mobile')"><i class="fa-solid fa-mobile-screen-button"></i> Телефон</button>
         </div>
         <div class="quick-tools-group">
-            <button class="tool-btn" onclick="openFirebaseRulesModal()"><i class="fa-solid fa-shield-halved" style="color:var(--accent)"></i> Firebase Rules</button>
-            <button class="tool-btn" onclick="exportDataJSON()"><i class="fa-solid fa-download"></i> Экспорт</button>
-            <button class="tool-btn" onclick="importDataJSON()"><i class="fa-solid fa-upload"></i> Импорт</button>
-        </div>
+          </div>
     </div>
 
     <!-- Custom Dual-Line Counter Loader -->
@@ -975,7 +972,7 @@
                     <div class="form-group">
                         <label class="form-label">🔑 Специальный ключ доступа</label>
                         <input type="text" id="reg-teacher-secret-key" class="form-control" placeholder="Например: EDSH-2026-TEACHER" value="EDSH-2026-TEACHER">
-                        <span style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:block;">                    </div>
+                    </div>
                     <div class="form-group">
                         <label class="form-label">ФИО Учителя</label>
                         <input type="text" id="reg-teacher-name" class="form-control" placeholder="Елена Сергеевна Воронова">
@@ -1322,10 +1319,7 @@
             <textarea id="firebase-rules-code" class="form-control" style="height:220px; font-family:'JetBrains Mono', monospace; font-size:0.8rem; line-height:1.4;" readonly>{
   "rules": {
     ".read": true,
-    ".write": true,
-    "journal_state": {
-      ".validate": "newData.hasChildren(['classes', 'teachers', 'students', 'tasks'])"
-    }
+    ".write": true
   }
 }</textarea>
             <div style="display:flex; gap:12px; margin-top:20px;">
@@ -1351,40 +1345,12 @@
             { id: 'dragon', name: 'Дракон Успеха', icon: '🐉', desc: 'Легендарный образ за кристаллы', price: 1000, limited: true }
         ];
 
-        // Initial default state
+        // Пустое начальное состояние (ничего не создаётся автоматически)
         const defaultState = {
-            classes: ['10-А', '11-Б'],
-            teachers: [
-                { id: 'TCH-1', name: 'Елена Сергеевна Воронова', subjects: ['Математика', 'Алгебра', 'Геометрия'], pin: '1234' }
-            ],
-            students: [
-                { 
-                    id: 'STU-9402', 
-                    name: 'Александр Соколов', 
-                    class: '10-А', 
-                    pinPlain: '123456', 
-                    coins: 150, 
-                    crystals: 200,
-                    activeSkin: 'default',
-                    unlockedSkins: ['default'],
-                    grades: { 'Математика': [5, 5, 4, 5], 'Физика': [5, 4, 4] } 
-                },
-                { 
-                    id: 'STU-3819', 
-                    name: 'Мария Воронова', 
-                    class: '10-А', 
-                    pinPlain: '654321', 
-                    coins: 80, 
-                    crystals: 50,
-                    activeSkin: 'default',
-                    unlockedSkins: ['default'],
-                    grades: { 'Математика': [4, 4, 3, 5], 'Информатика': [5, 4, 5] } 
-                }
-            ],
-            tasks: [
-                { id: 'TSK-101', studentId: 'STU-9402', title: 'Прочитать 20 страниц книги', coins: 50, status: 'completed' },
-                { id: 'TSK-102', studentId: 'STU-9402', title: 'Убраться в своей комнате', coins: 40, status: 'pending' }
-            ]
+            classes: [],
+            teachers: [],
+            students: [],
+            tasks: []
         };
 
         let appState = JSON.parse(localStorage.getItem('edsh_pro_data_v2')) || defaultState;
@@ -1398,6 +1364,21 @@
             localStorage.setItem('edsh_pro_data_v2', JSON.stringify(appState));
             if (firebaseDb) {
                 firebaseDb.ref('journal_state').set(appState);
+            }
+        }
+
+        // Функция полной очистки БД
+        function clearAllData() {
+            if (confirm('Вы уверены, что хотите полностью очистить всю базу данных? Все записи удалятся безвозвратно.')) {
+                appState = {
+                    classes: [],
+                    teachers: [],
+                    students: [],
+                    tasks: []
+                };
+                saveState();
+                showToast('База данных успешно очищена!');
+                setTimeout(() => location.reload(), 800);
             }
         }
 
@@ -1457,13 +1438,23 @@
         }
 
         function populateStudentDropdown(id) {
-            document.getElementById(id).innerHTML = appState.students.map((s, idx) => 
-                `<option value="${idx}">${s.name} (${s.class}) - [ID: ${s.id}]</option>`
+            const dropdown = document.getElementById(id);
+            if (!appState.students || !appState.students.length) {
+                dropdown.innerHTML = '<option value="">Нет зарегистрированных учеников</option>';
+                return;
+            }
+            dropdown.innerHTML = appState.students.map((s, idx) => 
+                `<option value="${idx}">${s.name} (${s.class || 'Без класса'}) - [ID: ${s.id}]</option>`
             ).join('');
         }
 
         function populateTeacherDropdown() {
-            document.getElementById('teacher-select-dropdown').innerHTML = appState.teachers.map((t, idx) => 
+            const dropdown = document.getElementById('teacher-select-dropdown');
+            if (!appState.teachers || !appState.teachers.length) {
+                dropdown.innerHTML = '<option value="">Нет зарегистрированных учителей</option>';
+                return;
+            }
+            dropdown.innerHTML = appState.teachers.map((t, idx) => 
                 `<option value="${idx}">${t.name} (${(t.subjects || [t.subject]).join(', ')})</option>`
             ).join('');
         }
@@ -1508,6 +1499,7 @@
                 pin 
             };
 
+            if (!appState.teachers) appState.teachers = [];
             appState.teachers.push(newTeacher);
             saveState();
             showToast('Учитель зарегистрирован!');
@@ -1518,6 +1510,12 @@
         function submitTeacherLogin() {
             const idx = document.getElementById('teacher-select-dropdown').value;
             const pin = document.getElementById('teacher-pin-login').value.trim();
+            
+            if (idx === "" || !appState.teachers[idx]) {
+                showToast('Сначала зарегистрируйте учителя!');
+                return;
+            }
+
             const teacher = appState.teachers[idx];
 
             if (teacher && teacher.pin === pin) {
@@ -1532,6 +1530,8 @@
 
         function renderTeacherDashboard() {
             const teacher = appState.teachers[currentTeacherIdx];
+            if (!teacher) return;
+
             document.getElementById('teacher-dash-fullname').innerText = teacher.name;
             
             const subs = teacher.subjects || [teacher.subject];
@@ -1539,8 +1539,16 @@
                 `<span class="badge-subject-tag"><i class="fa-solid fa-book"></i> ${s}</span>`
             ).join('');
 
-            document.getElementById('teacher-class-filter').innerHTML = appState.classes.map(c => `<option value="${c}">${c}</option>`).join('');
-            document.getElementById('new-student-class').innerHTML = appState.classes.map(c => `<option value="${c}">${c}</option>`).join('');
+            const classFilter = document.getElementById('teacher-class-filter');
+            const studentClassSelect = document.getElementById('new-student-class');
+
+            if (appState.classes && appState.classes.length) {
+                classFilter.innerHTML = appState.classes.map(c => `<option value="${c}">${c}</option>`).join('');
+                studentClassSelect.innerHTML = appState.classes.map(c => `<option value="${c}">${c}</option>`).join('');
+            } else {
+                classFilter.innerHTML = '<option value="">Нет классов</option>';
+                studentClassSelect.innerHTML = '<option value="">Сначала создайте класс</option>';
+            }
             
             renderTeacherJournalTable();
             renderClassesChips();
@@ -1551,6 +1559,7 @@
             const tbody = document.getElementById('teacher-journal-rows');
             tbody.innerHTML = '';
 
+            if (!appState.students) appState.students = [];
             const filteredStudents = appState.students.filter(s => s.class === selClass);
 
             if (!filteredStudents.length) {
@@ -1587,6 +1596,8 @@
             const className = document.getElementById('new-class-name-input').value.trim();
             if (!className) return;
 
+            if (!appState.classes) appState.classes = [];
+
             if (!appState.classes.includes(className)) {
                 appState.classes.push(className);
                 saveState();
@@ -1600,6 +1611,10 @@
 
         function renderClassesChips() {
             const container = document.getElementById('classes-chips-list');
+            if (!appState.classes || !appState.classes.length) {
+                container.innerHTML = '<span style="color:var(--text-muted)">Классы еще не созданы</span>';
+                return;
+            }
             container.innerHTML = appState.classes.map(c => 
                 `<span style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); padding:8px 16px; border-radius:30px; font-weight:700; display:inline-flex; align-items:center; gap:8px;"><i class="fa-solid fa-users"></i> ${c}</span>`
             ).join('');
@@ -1608,10 +1623,20 @@
         function createNewStudentRecord() {
             const name = document.getElementById('new-student-fullname').value.trim();
             const cName = document.getElementById('new-student-class').value;
-            if(!name) return;
+            
+            if(!name) {
+                showToast('Введите ФИО ученика!');
+                return;
+            }
+            if(!cName) {
+                showToast('Сначала создайте хотя бы один класс!');
+                return;
+            }
 
             const pin = Math.floor(100000 + Math.random() * 900000).toString();
             const newId = 'STU-' + Math.floor(1000 + Math.random() * 9000);
+
+            if (!appState.students) appState.students = [];
 
             appState.students.push({
                 id: newId,
@@ -1650,6 +1675,12 @@
         function submitStudentAuth() {
             const idx = document.getElementById('student-select-dropdown').value;
             const pin = document.getElementById('student-pin-input').value.trim();
+            
+            if (idx === "" || !appState.students[idx]) {
+                showToast('Ученики еще не зарегистрированы!');
+                return;
+            }
+
             const student = appState.students[idx];
 
             if (student && student.pinPlain === pin) {
@@ -1664,6 +1695,8 @@
 
         function renderStudentDashboard() {
             const student = appState.students[currentStudentIdx];
+            if (!student) return;
+
             if (!student.unlockedSkins) student.unlockedSkins = ['default'];
             if (!student.activeSkin) student.activeSkin = 'default';
             if (!student.crystals) student.crystals = 0;
@@ -1776,6 +1809,8 @@
         function renderStudentTasks() {
             const student = appState.students[currentStudentIdx];
             const tasksList = document.getElementById('student-tasks-list');
+            if (!appState.tasks) appState.tasks = [];
+            
             const studentTasks = appState.tasks.filter(t => t.studentId === student.id);
 
             if(!studentTasks.length) {
@@ -1827,6 +1862,7 @@
                 return;
             }
 
+            if (!appState.students) appState.students = [];
             const studentIndex = appState.students.findIndex(s => s.id.toUpperCase() === studentIdInput);
 
             if (studentIndex !== -1) {
@@ -1845,6 +1881,8 @@
 
         function renderParentDashboard() {
             const student = appState.students[currentStudentIdx];
+            if (!student) return;
+
             document.getElementById('parent-child-name').innerText = student.name;
             document.getElementById('parent-child-id-tag').innerText = `ID: ${student.id}`;
             document.getElementById('parent-child-coins').innerText = student.coins || 0;
@@ -1857,6 +1895,8 @@
         function renderParentTasks() {
             const student = appState.students[currentStudentIdx];
             const tasksList = document.getElementById('parent-tasks-list');
+            if (!appState.tasks) appState.tasks = [];
+
             const studentTasks = appState.tasks.filter(t => t.studentId === student.id);
 
             if(!studentTasks.length) {
@@ -1934,7 +1974,7 @@
         function openAddGradeModal(idx) {
             selectedStudentIndexForGrade = idx;
             const teacher = appState.teachers[currentTeacherIdx] || appState.teachers[0];
-            const teacherSubs = teacher.subjects || [teacher.subject || 'Математика'];
+            const teacherSubs = teacher ? (teacher.subjects || [teacher.subject || 'Математика']) : ['Математика'];
 
             const sel = document.getElementById('modal-grade-subject-select');
             sel.innerHTML = teacherSubs.map(s => `<option value="${s}">${s}</option>`).join('');
@@ -1967,6 +2007,7 @@
             const sub = document.getElementById('modal-grade-subject-select').value;
             const student = appState.students[selectedStudentIndexForGrade];
 
+            if (!student.grades) student.grades = {};
             if (!student.grades[sub]) student.grades[sub] = [];
             student.grades[sub].push(selectedModalGradeVal);
 
@@ -1982,6 +2023,7 @@
             const student = appState.students[currentStudentIdx];
 
             if(!title) return;
+            if(!appState.tasks) appState.tasks = [];
 
             appState.tasks.push({
                 id: 'TSK-' + Date.now(),
@@ -1995,36 +2037,6 @@
             closeModal('modal-add-task');
             renderParentDashboard();
             showToast('Задание успешно добавлено!');
-        }
-
-        // Export/Import JSON Data
-        function exportDataJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `edsh_backup_${Date.now()}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            showToast('Резервная копия сохранена!');
-        }
-
-        function importDataJSON() {
-            const jsonStr = prompt('Вставьте JSON-данные резервной копии:');
-            if (jsonStr) {
-                try {
-                    const parsed = JSON.parse(jsonStr);
-                    if (parsed.students && parsed.teachers) {
-                        appState = parsed;
-                        saveState();
-                        location.reload();
-                    } else {
-                        showToast('Ошибка в структуре JSON файла!');
-                    }
-                } catch(e) {
-                    showToast('Некорректный формат JSON!');
-                }
-            }
         }
 
         // DOM Initialization
