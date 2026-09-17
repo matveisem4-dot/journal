@@ -1821,7 +1821,7 @@
         }
 
         function buyCrystalsPrompt() {
-            const amount = prompt('Сколько Кристалликов 💎 вы хотите купить? (Имитация покупки за реальные деньги)', '100');
+            const amount = prompt('Введите сколько хотите кристалов?', '100');
             const num = parseInt(amount);
             if (!isNaN(num) && num > 0) {
                 const student = appState.students[currentStudentIdx];
