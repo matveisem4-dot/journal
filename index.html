@@ -64,7 +64,6 @@
             align-items: center;
         }
 
-        /* Ambient animated particles background */
         .ambient-bg {
             position: fixed;
             top: 0;
@@ -93,7 +92,6 @@
             100% { transform: translate(70px, 90px) scale(1.18); }
         }
 
-        /* Top Bar Controls */
         .top-bar {
             position: relative;
             z-index: 1000;
@@ -164,7 +162,6 @@
             border-color: rgba(255, 255, 255, 0.25);
         }
 
-        /* App Viewport Container */
         .app-viewport {
             position: relative;
             z-index: 1;
@@ -186,7 +183,6 @@
             min-height: 860px;
         }
 
-        /* Navbar */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -248,7 +244,6 @@
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* Custom Dual-Line Counter Loader */
         .loader-overlay {
             position: fixed;
             inset: 0;
@@ -320,7 +315,6 @@
             text-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
 
-        /* Screen views */
         .view-screen {
             display: none;
             opacity: 0;
@@ -334,7 +328,6 @@
             transform: translateY(0);
         }
 
-        /* Role Selection Hero */
         .roles-container {
             text-align: center;
             max-width: 960px;
@@ -433,7 +426,6 @@
             box-shadow: 0 6px 18px var(--primary-glow);
         }
 
-        /* Auth Forms Card */
         .auth-box-card {
             max-width: 500px;
             margin: 20px auto;
@@ -546,7 +538,6 @@
 
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(99, 102, 241, 0.55); }
 
-        /* Dashboards Layout */
         .dashboard-layout {
             display: grid;
             grid-template-columns: 280px 1fr;
@@ -707,7 +698,6 @@
         .modern-table td:first-child { border-left: 1px solid var(--card-border); border-top-left-radius: var(--radius-sm); border-bottom-left-radius: var(--radius-sm); }
         .modern-table td:last-child { border-right: 1px solid var(--card-border); border-top-right-radius: var(--radius-sm); border-bottom-right-radius: var(--radius-sm); }
 
-        /* Tasks & Skins Cards */
         .task-item-card {
             background: rgba(15, 23, 42, 0.55);
             border: 1px solid var(--card-border);
@@ -732,7 +722,6 @@
             font-weight: 700;
         }
 
-        /* HOUSE / CHARACTER ROOM STYLES */
         .home-room-container {
             background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
             border: 2px solid var(--card-border);
@@ -803,7 +792,6 @@
 
         .skin-icon-large { font-size: 3.5rem; margin-bottom: 12px; }
 
-        /* Toast Container */
         .toast-container {
             position: fixed;
             bottom: 24px;
@@ -832,7 +820,6 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Modals */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -877,7 +864,9 @@
             <button class="device-btn" id="btn-device-mobile" onclick="setDeviceMode('mobile')"><i class="fa-solid fa-mobile-screen-button"></i> Телефон</button>
         </div>
         <div class="quick-tools-group">
-          </div>
+            <button class="tool-btn" onclick="openFirebaseRulesModal()"><i class="fa-solid fa-shield-halved"></i> Правила Firebase</button>
+            <button class="tool-btn" style="color:var(--grade-2); border-color:rgba(239,68,68,0.3);" onclick="clearAllData()"><i class="fa-solid fa-trash"></i> Очистить БД</button>
+        </div>
     </div>
 
     <!-- Custom Dual-Line Counter Loader -->
@@ -1010,7 +999,7 @@
             </div>
         </section>
 
-        <!-- 4. PARENT AUTH (DIRECT ENTRY BY ID & PIN) -->
+        <!-- 4. PARENT AUTH -->
         <section id="view-auth-parent" class="view-screen">
             <div class="auth-box-card">
                 <button class="btn-nav-back" onclick="switchView('view-roles')"><i class="fa-solid fa-chevron-left"></i> Назад</button>
@@ -1334,7 +1323,13 @@
         const SECRET_TEACHER_KEY = "EDSH-2026-TEACHER";
         const firebaseConfig = { databaseURL: "https://journal-64b12-default-rtdb.firebaseio.com/" };
         let firebaseDb = null;
-        try { firebase.initializeApp(firebaseConfig); firebaseDb = firebase.database(); } catch(e){}
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            firebaseDb = firebase.database();
+        } catch(e) {
+            console.error("Firebase Initialization Error:", e);
+        }
 
         // CATALOG OF SKINS & CHARACTERS
         const SKINS_CATALOG = [
@@ -1345,7 +1340,6 @@
             { id: 'dragon', name: 'Дракон Успеха', icon: '🐉', desc: 'Легендарный образ за кристаллы', price: 1000, limited: true }
         ];
 
-        // Пустое начальное состояние (ничего не создаётся автоматически)
         const defaultState = {
             classes: [],
             teachers: [],
@@ -1353,23 +1347,56 @@
             tasks: []
         };
 
-        let appState = JSON.parse(localStorage.getItem('edsh_pro_data_v2')) || defaultState;
+        let appState = { ...defaultState };
         let currentStudentIdx = null;
         let currentTeacherIdx = null;
         let selectedStudentIndexForGrade = null;
         let selectedModalGradeVal = 5;
 
-        // Save State locally and sync to Firebase
+        // REALTIME SYNCHRONIZATION WITH FIREBASE (NO LOCAL STORAGE)
+        if (firebaseDb) {
+            firebaseDb.ref('journal_state').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    appState = {
+                        classes: data.classes || [],
+                        teachers: data.teachers || [],
+                        students: data.students || [],
+                        tasks: data.tasks || []
+                    };
+                } else {
+                    appState = { classes: [], teachers: [], students: [], tasks: [] };
+                }
+                refreshCurrentView();
+            });
+        }
+
         function saveState() {
-            localStorage.setItem('edsh_pro_data_v2', JSON.stringify(appState));
             if (firebaseDb) {
                 firebaseDb.ref('journal_state').set(appState);
             }
         }
 
-        // Функция полной очистки БД
+        function refreshCurrentView() {
+            const activeView = document.querySelector('.view-screen.active');
+            if (!activeView) return;
+
+            if (activeView.id === 'view-dash-teacher' && currentTeacherIdx !== null) {
+                renderTeacherDashboard();
+            } else if (activeView.id === 'view-dash-student' && currentStudentIdx !== null) {
+                renderStudentDashboard();
+            } else if (activeView.id === 'view-dash-parent' && currentStudentIdx !== null) {
+                renderParentDashboard();
+            } else if (activeView.id === 'view-auth-teacher') {
+                populateTeacherDropdown();
+            } else if (activeView.id === 'view-auth-student') {
+                populateStudentDropdown('student-select-dropdown');
+            }
+        }
+
+        // Функция полной очистки БД в Firebase
         function clearAllData() {
-            if (confirm('Вы уверены, что хотите полностью очистить всю базу данных? Все записи удалятся безвозвратно.')) {
+            if (confirm('Вы уверены, что хотите полностью очистить всю базу данных в Firebase? Все записи удалятся безвозвратно.')) {
                 appState = {
                     classes: [],
                     teachers: [],
@@ -1378,7 +1405,6 @@
                 };
                 saveState();
                 showToast('База данных успешно очищена!');
-                setTimeout(() => location.reload(), 800);
             }
         }
 
@@ -1388,7 +1414,7 @@
             const btnPc = document.getElementById('btn-device-pc');
             const btnMob = document.getElementById('btn-device-mobile');
 
-            if(mode === 'mobile') {
+            if (mode === 'mobile') {
                 vp.classList.remove('mode-desktop');
                 vp.classList.add('mode-mobile');
                 btnMob.classList.add('active');
@@ -1852,7 +1878,7 @@
             });
         }
 
-        // NEW DIRECT PARENT AUTH (BY STUDENT ID AND PIN)
+        // PARENT AUTH
         function submitParentAuth() {
             const studentIdInput = document.getElementById('parent-student-id-input').value.trim().toUpperCase();
             const pin = document.getElementById('parent-pin-input').value.trim();
@@ -1978,12 +2004,63 @@
 
             const sel = document.getElementById('modal-grade-subject-select');
             sel.innerHTML = teacherSubs.map(s => `<option value="${s}">${s}</option>`).join('');
-
             document.getElementById('modal-add-grade').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function selectModalGradeValue(val) {
+            selectedModalGradeVal = val;
+            showToast(`Выбрана оценка: ${val}`);
+        }
+
+        function saveGradeFromModal() {
+            if (selectedStudentIndexForGrade === null) return;
+            const student = appState.students[selectedStudentIndexForGrade];
+            const subject = document.getElementById('modal-grade-subject-select').value;
+
+            if (!student.grades) student.grades = {};
+            if (!student.grades[subject]) student.grades[subject] = [];
+
+            student.grades[subject].push(selectedModalGradeVal);
+            saveState();
+            closeModal('modal-add-grade');
+            renderTeacherJournalTable();
+            showToast(`Оценка ${selectedModalGradeVal} поставлена ученику ${student.name}`);
         }
 
         function openAddTaskModal() {
             document.getElementById('modal-add-task').classList.add('active');
+        }
+
+        function saveTaskFromModal() {
+            const title = document.getElementById('modal-task-title').value.trim();
+            const coins = parseInt(document.getElementById('modal-task-coins').value);
+
+            if (!title || isNaN(coins) || coins <= 0) {
+                showToast('Заполните корректно все поля!');
+                return;
+            }
+
+            const student = appState.students[currentStudentIdx];
+            if (!student) return;
+
+            if (!appState.tasks) appState.tasks = [];
+
+            appState.tasks.push({
+                id: 'TSK-' + Date.now(),
+                studentId: student.id,
+                title,
+                coins,
+                status: 'pending'
+            });
+
+            saveState();
+            closeModal('modal-add-task');
+            renderParentDashboard();
+            showToast('Задание создано!');
         }
 
         function openFirebaseRulesModal() {
@@ -1991,58 +2068,11 @@
         }
 
         function copyFirebaseRules() {
-            const code = document.getElementById('firebase-rules-code');
-            code.select();
-            document.execCommand('copy');
-            showToast('Правила скопированы в буфер обмена!');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        function selectModalGradeValue(val) { selectedModalGradeVal = val; }
-
-        function saveGradeFromModal() {
-            const sub = document.getElementById('modal-grade-subject-select').value;
-            const student = appState.students[selectedStudentIndexForGrade];
-
-            if (!student.grades) student.grades = {};
-            if (!student.grades[sub]) student.grades[sub] = [];
-            student.grades[sub].push(selectedModalGradeVal);
-
-            saveState();
-            closeModal('modal-add-grade');
-            renderTeacherJournalTable();
-            showToast(`Оценка ${selectedModalGradeVal} поставлена (${sub})!`);
-        }
-
-        function saveTaskFromModal() {
-            const title = document.getElementById('modal-task-title').value.trim();
-            const coins = parseInt(document.getElementById('modal-task-coins').value) || 50;
-            const student = appState.students[currentStudentIdx];
-
-            if(!title) return;
-            if(!appState.tasks) appState.tasks = [];
-
-            appState.tasks.push({
-                id: 'TSK-' + Date.now(),
-                studentId: student.id,
-                title: title,
-                coins: coins,
-                status: 'pending'
+            const rulesText = document.getElementById('firebase-rules-code').value;
+            navigator.clipboard.writeText(rulesText).then(() => {
+                showToast('Правила скопированы!');
             });
-
-            saveState();
-            closeModal('modal-add-task');
-            renderParentDashboard();
-            showToast('Задание успешно добавлено!');
         }
-
-        // DOM Initialization
-        window.addEventListener('DOMContentLoaded', () => {
-            saveState();
-        });
     </script>
 </body>
 </html>
