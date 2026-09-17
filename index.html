@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Интеллектуальный Электронный Дневник — ЭДШ-Pro Ultimate v2.6</title>
+    <title>Интеллектуальный Электронный Дневник — ЭДШ-Pro Ultimate v2.5</title>
     <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,16 +24,13 @@
             --accent-glow: rgba(6, 182, 212, 0.45);
             --gold: #f59e0b;
             --gold-glow: rgba(245, 158, 11, 0.45);
+            --crystal: #3b82f6;
+            --crystal-glow: rgba(59, 130, 246, 0.55);
             --bg-dark: #090d16;
             --card-bg: rgba(22, 31, 49, 0.78);
             --card-border: rgba(255, 255, 255, 0.12);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --input-bg: rgba(15, 23, 42, 0.65);
-            --topbar-bg: rgba(15, 23, 42, 0.85);
-            --table-row-bg: rgba(15, 23, 42, 0.45);
-            --modal-bg: #1e293b;
-            --hero-title-grad: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
             --grade-5: #10b981;
             --grade-4: #3b82f6;
             --grade-3: #f59e0b;
@@ -42,19 +39,6 @@
             --radius-md: 16px;
             --radius-sm: 10px;
             --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        [data-theme="light"] {
-            --bg-dark: #f1f5f9;
-            --card-bg: rgba(255, 255, 255, 0.88);
-            --card-border: rgba(0, 0, 0, 0.12);
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --input-bg: rgba(241, 245, 249, 0.95);
-            --topbar-bg: rgba(255, 255, 255, 0.92);
-            --table-row-bg: rgba(241, 245, 249, 0.85);
-            --modal-bg: #ffffff;
-            --hero-title-grad: linear-gradient(135deg, #0f172a 30%, #4f46e5 100%);
         }
 
         * {
@@ -71,14 +55,13 @@
             min-height: 100vh;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.22) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.2) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.18) 0px, transparent 50%);
             background-attachment: fixed;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Ambient animated particles background */
@@ -97,7 +80,7 @@
             position: absolute;
             border-radius: 50%;
             filter: blur(100px);
-            opacity: 0.35;
+            opacity: 0.4;
             animation: floatOrb 18s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
         }
 
@@ -115,7 +98,7 @@
             position: relative;
             z-index: 1000;
             width: 100%;
-            background: var(--topbar-bg);
+            background: rgba(15, 23, 42, 0.85);
             border-bottom: 1px solid var(--card-border);
             backdrop-filter: blur(16px);
             padding: 10px 24px;
@@ -124,13 +107,12 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            transition: background 0.3s ease;
         }
 
         .device-mode-toggle {
             display: flex;
             gap: 6px;
-            background: rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.05);
             padding: 4px;
             border-radius: 30px;
             border: 1px solid var(--card-border);
@@ -163,10 +145,10 @@
         }
 
         .tool-btn {
-            background: var(--input-bg);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--card-border);
             color: var(--text-main);
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
@@ -178,8 +160,8 @@
         }
 
         .tool-btn:hover {
-            background: rgba(99, 102, 241, 0.15);
-            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.25);
         }
 
         /* App Viewport Container */
@@ -198,7 +180,7 @@
             margin: 20px auto;
             border: 12px solid #1e293b;
             border-radius: 44px;
-            box-shadow: 0 30px 70px rgba(0,0,0,0.5), 0 0 40px rgba(99, 102, 241, 0.25);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.85), 0 0 50px rgba(99, 102, 241, 0.3);
             background: var(--bg-dark);
             padding: 16px;
             min-height: 860px;
@@ -209,13 +191,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--card-bg);
+            background: rgba(22, 31, 49, 0.7);
             backdrop-filter: blur(24px);
             border: 1px solid var(--card-border);
             border-radius: var(--radius-lg);
             padding: 14px 24px;
             margin-bottom: 24px;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.3);
         }
 
         .brand-logo {
@@ -224,7 +206,7 @@
             gap: 12px;
             font-weight: 800;
             font-size: 1.35rem;
-            color: var(--text-main);
+            color: #fff;
             text-decoration: none;
             cursor: pointer;
         }
@@ -238,7 +220,6 @@
             align-items: center;
             justify-content: center;
             font-size: 1.25rem;
-            color: #fff;
             box-shadow: 0 4px 18px var(--primary-glow);
         }
 
@@ -248,7 +229,7 @@
             gap: 8px;
             background: rgba(16, 185, 129, 0.12);
             border: 1px solid rgba(16, 185, 129, 0.35);
-            color: #10b981;
+            color: #34d399;
             padding: 6px 14px;
             border-radius: 30px;
             font-size: 0.75rem;
@@ -271,7 +252,7 @@
         .loader-overlay {
             position: fixed;
             inset: 0;
-            background: var(--topbar-bg);
+            background: rgba(9, 13, 22, 0.92);
             backdrop-filter: blur(20px);
             z-index: 9999;
             display: flex;
@@ -289,7 +270,7 @@
             position: relative;
             width: 320px;
             height: 20px;
-            background: rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--card-border);
             border-radius: 30px;
             overflow: hidden;
@@ -321,14 +302,22 @@
             animation: lineMoveLeft 1.6s ease-in-out infinite alternate;
         }
 
-        @keyframes lineMoveRight { 0% { transform: translateX(-90%); } 100% { transform: translateX(110%); } }
-        @keyframes lineMoveLeft { 0% { transform: translateX(90%); } 100% { transform: translateX(-110%); } }
+        @keyframes lineMoveRight {
+            0% { transform: translateX(-90%); }
+            100% { transform: translateX(110%); }
+        }
+
+        @keyframes lineMoveLeft {
+            0% { transform: translateX(90%); }
+            100% { transform: translateX(-110%); }
+        }
 
         .loader-text {
             font-size: 0.95rem;
             font-weight: 700;
-            color: var(--text-main);
+            color: #fff;
             letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
 
         /* Screen views */
@@ -355,7 +344,7 @@
         .hero-title {
             font-size: 2.6rem;
             font-weight: 800;
-            background: var(--hero-title-grad);
+            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 12px;
@@ -395,7 +384,7 @@
         .role-card-item:hover {
             transform: translateY(-8px) scale(1.02);
             border-color: rgba(99, 102, 241, 0.5);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 0 30px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45), 0 0 30px rgba(99, 102, 241, 0.25);
         }
 
         .role-badge-icon {
@@ -418,7 +407,7 @@
         .icon-student { background: linear-gradient(135deg, #ec4899, #f43f5e); color: #fff; box-shadow: 0 12px 25px rgba(236, 72, 153, 0.45); }
         .icon-parent { background: linear-gradient(135deg, #06b6d4, #10b981); color: #fff; box-shadow: 0 12px 25px rgba(6, 182, 212, 0.45); }
 
-        .role-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+        .role-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; color: #fff; }
         .role-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 22px; }
 
         .role-action-btn {
@@ -428,7 +417,7 @@
             border-radius: var(--radius-sm);
             border: 1px solid var(--card-border);
             background: rgba(255, 255, 255, 0.05);
-            color: var(--text-main);
+            color: #fff;
             font-weight: 700;
             font-size: 0.88rem;
             transition: all 0.25s ease;
@@ -440,7 +429,6 @@
 
         .role-card-item:hover .role-action-btn {
             background: var(--primary);
-            color: #fff;
             border-color: var(--primary);
             box-shadow: 0 6px 18px var(--primary-glow);
         }
@@ -454,14 +442,14 @@
             border: 1px solid var(--card-border);
             border-radius: var(--radius-lg);
             padding: 36px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
         }
 
         .auth-tab-group {
             display: flex;
             gap: 10px;
             margin-bottom: 26px;
-            background: var(--input-bg);
+            background: rgba(15, 23, 42, 0.6);
             padding: 5px;
             border-radius: var(--radius-sm);
         }
@@ -485,7 +473,7 @@
         }
 
         .btn-nav-back {
-            background: var(--input-bg);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--card-border);
             color: var(--text-muted);
             padding: 8px 16px;
@@ -500,7 +488,7 @@
             margin-bottom: 20px;
         }
 
-        .btn-nav-back:hover { color: var(--text-main); background: rgba(99, 102, 241, 0.15); }
+        .btn-nav-back:hover { color: #fff; background: rgba(255, 255, 255, 0.12); }
 
         .auth-header { text-align: center; margin-bottom: 24px; }
         .auth-header h2 { font-size: 1.65rem; font-weight: 800; margin-bottom: 6px; }
@@ -512,10 +500,10 @@
         .form-control {
             width: 100%;
             padding: 12px 16px;
-            background: var(--input-bg);
+            background: rgba(15, 23, 42, 0.65);
             border: 1px solid var(--card-border);
             border-radius: var(--radius-sm);
-            color: var(--text-main);
+            color: #fff;
             font-size: 0.95rem;
             outline: none;
             transition: border 0.2s ease;
@@ -527,9 +515,9 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(99, 102, 241, 0.18);
-            border: 1px solid rgba(99, 102, 241, 0.35);
-            color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #a5b4fc;
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 0.78rem;
@@ -613,11 +601,25 @@
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.15));
             border: 1px solid rgba(245, 158, 11, 0.45);
             color: #fbbf24;
-            padding: 10px 16px;
+            padding: 8px 14px;
             border-radius: 20px;
             font-weight: 800;
-            font-size: 1.05rem;
+            font-size: 1rem;
             box-shadow: 0 4px 14px var(--gold-glow);
+        }
+
+        .crystal-pill-badge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
+            border: 1px solid rgba(59, 130, 246, 0.45);
+            color: #60a5fa;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1rem;
+            box-shadow: 0 4px 14px var(--crystal-glow);
         }
 
         .side-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
@@ -635,7 +637,7 @@
         }
 
         .side-menu-item:hover, .side-menu-item.active {
-            color: var(--text-main);
+            color: #fff;
             background: rgba(99, 102, 241, 0.18);
             border: 1px solid rgba(99, 102, 241, 0.35);
         }
@@ -650,7 +652,7 @@
         }
 
         .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 14px; }
-        .content-header h2 { font-size: 1.45rem; font-weight: 800; color: var(--text-main); }
+        .content-header h2 { font-size: 1.45rem; font-weight: 800; }
 
         .stats-grid {
             display: grid;
@@ -660,7 +662,7 @@
         }
 
         .stat-card {
-            background: var(--table-row-bg);
+            background: rgba(15, 23, 42, 0.55);
             border: 1px solid var(--card-border);
             border-radius: var(--radius-md);
             padding: 18px;
@@ -670,7 +672,7 @@
             font-size: 1.9rem;
             font-weight: 800;
             margin: 4px 0;
-            background: var(--hero-title-grad);
+            background: linear-gradient(135deg, #fff, #a5b4fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -686,7 +688,7 @@
             font-size: 0.95rem;
             color: #fff;
             margin-right: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             cursor: pointer;
             transition: transform 0.2s ease;
         }
@@ -699,15 +701,15 @@
 
         .modern-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
         .modern-table th { padding: 10px 16px; text-align: left; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .modern-table tbody tr { background: var(--table-row-bg); border: 1px solid var(--card-border); transition: background 0.2s ease; }
-        .modern-table tbody tr:hover { background: rgba(99, 102, 241, 0.1); }
-        .modern-table td { padding: 16px; color: var(--text-main); font-size: 0.92rem; border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); }
+        .modern-table tbody tr { background: rgba(15, 23, 42, 0.45); border: 1px solid var(--card-border); transition: background 0.2s ease; }
+        .modern-table tbody tr:hover { background: rgba(15, 23, 42, 0.75); }
+        .modern-table td { padding: 16px; color: #f8fafc; font-size: 0.92rem; border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); }
         .modern-table td:first-child { border-left: 1px solid var(--card-border); border-top-left-radius: var(--radius-sm); border-bottom-left-radius: var(--radius-sm); }
         .modern-table td:last-child { border-right: 1px solid var(--card-border); border-top-right-radius: var(--radius-sm); border-bottom-right-radius: var(--radius-sm); }
 
         /* Tasks & Skins Cards */
         .task-item-card {
-            background: var(--table-row-bg);
+            background: rgba(15, 23, 42, 0.55);
             border: 1px solid var(--card-border);
             border-radius: var(--radius-md);
             padding: 18px;
@@ -732,21 +734,21 @@
 
         /* HOUSE / CHARACTER ROOM STYLES */
         .home-room-container {
-            background: linear-gradient(180deg, var(--table-row-bg) 0%, var(--card-bg) 100%);
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
             border: 2px solid var(--card-border);
             border-radius: var(--radius-lg);
             padding: 30px;
             text-align: center;
             position: relative;
             overflow: hidden;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
             margin-bottom: 28px;
         }
 
         .character-avatar-display {
             font-size: 6rem;
             margin: 20px 0;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
             animation: bounceHero 3s ease-in-out infinite alternate;
         }
 
@@ -763,7 +765,7 @@
         }
 
         .skin-item-card {
-            background: var(--table-row-bg);
+            background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--card-border);
             border-radius: var(--radius-md);
             padding: 20px;
@@ -777,12 +779,12 @@
 
         .skin-item-card.limited {
             border-color: rgba(236, 72, 153, 0.6);
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), var(--table-row-bg));
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(15, 23, 42, 0.6));
         }
 
         .skin-item-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
 
         .limited-badge {
@@ -813,12 +815,12 @@
         }
 
         .toast-item {
-            background: var(--card-bg);
+            background: rgba(22, 31, 49, 0.96);
             border: 1px solid var(--card-border);
             padding: 16px 20px;
             border-radius: var(--radius-md);
-            color: var(--text-main);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+            color: #fff;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -834,7 +836,7 @@
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(9, 13, 22, 0.7);
+            background: rgba(9, 13, 22, 0.88);
             backdrop-filter: blur(12px);
             z-index: 8000;
             display: flex;
@@ -847,14 +849,13 @@
 
         .modal-overlay.active { opacity: 1; pointer-events: all; }
         .modal-window {
-            background: var(--modal-bg);
+            background: #1e293b;
             border: 1px solid var(--card-border);
             border-radius: var(--radius-lg);
             padding: 32px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
-            color: var(--text-main);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
         }
     </style>
 </head>
@@ -866,7 +867,7 @@
         <div class="orb orb-3"></div>
     </div>
 
-    <!-- Top Device & Theme Bar -->
+    <!-- Top Device & Admin Bar -->
     <div class="top-bar">
         <div style="font-weight:700; font-size:0.88rem; display:flex; align-items:center; gap:8px;">
             <i class="fa-solid fa-sliders" style="color:var(--primary)"></i> Режим устройства:
@@ -876,11 +877,7 @@
             <button class="device-btn" id="btn-device-mobile" onclick="setDeviceMode('mobile')"><i class="fa-solid fa-mobile-screen-button"></i> Телефон</button>
         </div>
         <div class="quick-tools-group">
-            <button class="tool-btn" id="theme-toggle-btn" onclick="toggleTheme()">
-                <i class="fa-solid fa-moon" id="theme-icon"></i> <span id="theme-text">Тёмная тема</span>
-            </button>
-            <button class="tool-btn" style="color:var(--grade-2);" onclick="clearAllData()"><i class="fa-solid fa-trash"></i> Сброс БД</button>
-        </div>
+          </div>
     </div>
 
     <!-- Custom Dual-Line Counter Loader -->
@@ -900,11 +897,11 @@
         <header class="navbar">
             <a class="brand-logo" onclick="switchView('view-roles')">
                 <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-                <span>ЭДШ<span style="color: var(--secondary);">Pro</span> <span style="font-size:0.75rem; color:var(--accent); font-weight:600;">v2.6</span></span>
+                <span>ЭДШ<span style="color: var(--secondary);">Pro</span> <span style="font-size:0.75rem; color:var(--accent); font-weight:600;">v2.5</span></span>
             </a>
             <div class="status-pill">
                 <span class="status-dot"></span>
-                <span>Firebase Realtime DB</span>
+                <span>Firebase Realtime Database</span>
             </div>
         </header>
 
@@ -912,27 +909,27 @@
         <main id="view-roles" class="view-screen active">
             <div class="roles-container">
                 <h1 class="hero-title">Интеллектуальный Электронный Дневник</h1>
-                <p class="hero-subtitle">Успеваемость, монетки 🪙 за поручения, лимитированные скины и удобная аналитика!</p>
+                <p class="hero-subtitle">Контроль успеваемости, система монеток 🪙, лимитированные скины 💎 и личный дом ученика!</p>
                 
                 <div class="role-cards-grid">
                     <div class="role-card-item" onclick="startAuthFlow('teacher')">
                         <div class="role-badge-icon icon-teacher"><i class="fa-solid fa-chalkboard-user"></i></div>
                         <h3 class="role-title">Учитель</h3>
-                        <p class="role-desc">Регистрация по спец-ключу, выставляйте оценки и заводите профили учеников с выдачей ID</p>
+                        <p class="role-desc">Регистрация по спец-ключу, свой список предметов, создание классов и выставление оценок</p>
                         <div class="role-action-btn">Кабинет Учителя <i class="fa-solid fa-arrow-right"></i></div>
                     </div>
 
                     <div class="role-card-item" onclick="startAuthFlow('student')">
                         <div class="role-badge-icon icon-student"><i class="fa-solid fa-user-graduate"></i></div>
                         <h3 class="role-title">Ученик</h3>
-                        <p class="role-desc">Вход по выдаваемому ID и PIN. Гардероб персонажа, история монет 🪙 и покупка скинов</p>
+                        <p class="role-desc">Дневник, гардероб персонажей, покупка эксклюзивных скинов и задания от родителей</p>
                         <div class="role-action-btn">Вход для Ученика <i class="fa-solid fa-arrow-right"></i></div>
                     </div>
 
                     <div class="role-card-item" onclick="startAuthFlow('parent')">
                         <div class="role-badge-icon icon-parent"><i class="fa-solid fa-people-roof"></i></div>
                         <h3 class="role-title">Родитель</h3>
-                        <p class="role-desc">Вход по ID ребёнка, выдача задания за монетки, списание и отслеживание оценок</p>
+                        <p class="role-desc">Прямой вход по ID ребенка без поиска по школе, выдача поручений и награждение</p>
                         <div class="role-action-btn">Родительский Контроль <i class="fa-solid fa-arrow-right"></i></div>
                     </div>
                 </div>
@@ -993,33 +990,33 @@
             </div>
         </section>
 
-        <!-- 3. STUDENT AUTH (BY ID & PIN) -->
+        <!-- 3. STUDENT AUTH -->
         <section id="view-auth-student" class="view-screen">
             <div class="auth-box-card">
                 <button class="btn-nav-back" onclick="switchView('view-roles')"><i class="fa-solid fa-chevron-left"></i> Назад</button>
                 <div class="auth-header">
                     <h2>Кабинет Ученика</h2>
-                    <p>Введите выданый учительский ID и персональный PIN</p>
+                    <p>Выберите свое имя из списка</p>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Персональный ID Ученика (например: STU-4921)</label>
-                    <input type="text" id="student-id-input" class="form-control" placeholder="STU-XXXX" style="text-transform: uppercase;">
+                    <label class="form-label">Ученик</label>
+                    <select id="student-select-dropdown" class="form-control"></select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">PIN доступа</label>
+                    <label class="form-label">Персональный PIN ученика</label>
                     <input type="password" id="student-pin-input" class="form-control" placeholder="••••••" maxlength="6">
                 </div>
                 <button class="btn-submit" style="background: linear-gradient(135deg, var(--secondary), #f43f5e);" onclick="submitStudentAuth()">Войти в дневник</button>
             </div>
         </section>
 
-        <!-- 4. PARENT AUTH -->
+        <!-- 4. PARENT AUTH (DIRECT ENTRY BY ID & PIN) -->
         <section id="view-auth-parent" class="view-screen">
             <div class="auth-box-card">
                 <button class="btn-nav-back" onclick="switchView('view-roles')"><i class="fa-solid fa-chevron-left"></i> Назад</button>
                 <div class="auth-header">
                     <h2><i class="fa-solid fa-shield-heart" style="color: var(--accent);"></i> Родительский Контроль</h2>
-                    <p>Введите ID вашего ребёнка и его PIN</p>
+                    <p>Введите ID вашего ребёнка и его PIN (без поиска по школе!)</p>
                 </div>
                 <div class="form-group">
                     <label class="form-label">ID Ребёнка (например: STU-9402)</label>
@@ -1089,7 +1086,7 @@
                                 <label class="form-label">ФИО Ученика</label>
                                 <input type="text" id="new-student-fullname" class="form-control" placeholder="Иванов Александр">
                             </div>
-                            <button class="btn-submit" onclick="createNewStudentRecord()">Зарегистрировать и выдать ID</button>
+                            <button class="btn-submit" onclick="createNewStudentRecord()">Зарегистрировать ученика</button>
                         </div>
                     </div>
 
@@ -1128,13 +1125,19 @@
                             <span>Монетки:</span>
                             <span><span id="student-coins-count">0</span> 🪙</span>
                         </div>
+                        <div class="crystal-pill-badge">
+                            <span>Кристаллики:</span>
+                            <span><span id="student-crystals-count">0</span> 💎</span>
+                        </div>
+                        <button class="tool-btn" style="width:100%; justify-content:center; background:linear-gradient(135deg, rgba(59,130,246,0.3), rgba(147,51,234,0.3)); border-color:var(--crystal);" onclick="buyCrystalsPrompt()">
+                            <i class="fa-solid fa-cart-shopping"></i> Пополнить 💎
+                        </button>
                     </div>
 
                     <ul class="side-menu">
-                        <li class="side-menu-item active" onclick="switchStudentTab('student-tab-home')"><i class="fa-solid fa-house-user"></i> Мой Персонаж & Магазин</li>
+                        <li class="side-menu-item active" onclick="switchStudentTab('student-tab-home')"><i class="fa-solid fa-house-user"></i> Мой Дом & Персонаж</li>
                         <li class="side-menu-item" onclick="switchStudentTab('student-tab-grades')"><i class="fa-solid fa-star"></i> Мои Оценки</li>
-                        <li class="side-menu-item" onclick="switchStudentTab('student-tab-tasks')"><i class="fa-solid fa-list-check"></i> Задания & Награды</li>
-                        <li class="side-menu-item" onclick="switchStudentTab('student-tab-history')"><i class="fa-solid fa-receipt"></i> История Монет 🪙</li>
+                        <li class="side-menu-item" onclick="switchStudentTab('student-tab-tasks')"><i class="fa-solid fa-list-check"></i> Задания & Монеты</li>
                         <li class="side-menu-item" style="color: var(--grade-2);" onclick="switchView('view-roles')"><i class="fa-solid fa-power-off"></i> Выйти</li>
                     </ul>
                 </aside>
@@ -1150,12 +1153,12 @@
                         <div class="home-room-container">
                             <h3 style="color:var(--text-muted); font-size:0.9rem; text-transform:uppercase; letter-spacing:1px;">Ваш выбранный герой:</h3>
                             <div class="character-avatar-display" id="active-character-preview">🎓</div>
-                            <h2 id="active-skin-title" style="font-weight:800; color:var(--text-main);">Обычный Ученик</h2>
+                            <h2 id="active-skin-title" style="font-weight:800; color:#fff;">Обычный Ученик</h2>
                             <p id="active-skin-desc" style="color:var(--text-muted); font-size:0.88rem; margin-top:4px;">Стандартный образ школьника</p>
                         </div>
 
                         <div class="content-header" style="margin-top:30px;">
-                            <h2>🛒 Магазин Лимитированных Скинов (за 🪙)</h2>
+                            <h2>🔥 Магазин Лимитированных Скинов (за 💎)</h2>
                         </div>
                         <div class="skins-shop-grid" id="skins-shop-container"></div>
                     </div>
@@ -1186,25 +1189,10 @@
                         </table>
                     </div>
 
-                    <!-- Tasks Tab -->
+                    <!-- Tasks & Coins Tab -->
                     <div id="student-tab-tasks" class="dash-content-card" style="display: none;">
                         <div class="content-header"><h2>Поручения от родителей за монетки 🪙</h2></div>
                         <div id="student-tasks-list"></div>
-                    </div>
-
-                    <!-- Coin History Tab -->
-                    <div id="student-tab-history" class="dash-content-card" style="display: none;">
-                        <div class="content-header"><h2>История транзакций с монетками 🪙</h2></div>
-                        <table class="modern-table">
-                            <thead>
-                                <tr>
-                                    <th>Дата</th>
-                                    <th>Описание</th>
-                                    <th>Сумма</th>
-                                </tr>
-                            </thead>
-                            <tbody id="student-history-table-body"></tbody>
-                        </table>
                     </div>
                 </main>
             </div>
@@ -1227,12 +1215,15 @@
                             <span>Монеты ребенка:</span>
                             <span><span id="parent-child-coins">0</span> 🪙</span>
                         </div>
+                        <div class="crystal-pill-badge">
+                            <span>Кристаллы ребенка:</span>
+                            <span><span id="parent-child-crystals">0</span> 💎</span>
+                        </div>
                     </div>
 
                     <ul class="side-menu">
                         <li class="side-menu-item active" onclick="switchParentTab('parent-tab-tasks')"><i class="fa-solid fa-tasks"></i> Задания за монетки</li>
                         <li class="side-menu-item" onclick="switchParentTab('parent-tab-grades')"><i class="fa-solid fa-chart-line"></i> Успеваемость</li>
-                        <li class="side-menu-item" onclick="switchParentTab('parent-tab-history')"><i class="fa-solid fa-receipt"></i> История Монет 🪙</li>
                         <li class="side-menu-item" style="color: var(--grade-2);" onclick="switchView('view-roles')"><i class="fa-solid fa-power-off"></i> Выйти</li>
                     </ul>
                 </aside>
@@ -1267,21 +1258,6 @@
                             <tbody id="parent-grades-table-body"></tbody>
                         </table>
                     </div>
-
-                    <!-- Coin History Tab -->
-                    <div id="parent-tab-history" class="dash-content-card" style="display: none;">
-                        <div class="content-header"><h2>История транзакций ребенка 🪙</h2></div>
-                        <table class="modern-table">
-                            <thead>
-                                <tr>
-                                    <th>Дата</th>
-                                    <th>Описание</th>
-                                    <th>Сумма</th>
-                                </tr>
-                            </thead>
-                            <tbody id="parent-history-table-body"></tbody>
-                        </table>
-                    </div>
                 </main>
             </div>
         </section>
@@ -1310,7 +1286,7 @@
                 <input type="text" id="modal-grade-comment" class="form-control" placeholder="Контрольная работа / Ответ у доски">
             </div>
             <div style="display:flex; gap:12px; margin-top:26px;">
-                <button class="btn-submit" style="background:var(--input-bg); color:var(--text-main);" onclick="closeModal('modal-add-grade')">Отмена</button>
+                <button class="btn-submit" style="background:rgba(255,255,255,0.1);" onclick="closeModal('modal-add-grade')">Отмена</button>
                 <button class="btn-submit" onclick="saveGradeFromModal()">Сохранить оценку</button>
             </div>
         </div>
@@ -1329,95 +1305,116 @@
                 <input type="number" id="modal-task-coins" class="form-control" value="50" min="5" step="5">
             </div>
             <div style="display:flex; gap:12px; margin-top:26px;">
-                <button class="btn-submit" style="background:var(--input-bg); color:var(--text-main);" onclick="closeModal('modal-add-task')">Отмена</button>
+                <button class="btn-submit" style="background:rgba(255,255,255,0.1);" onclick="closeModal('modal-add-task')">Отмена</button>
                 <button class="btn-submit" style="background:linear-gradient(135deg, var(--gold), #d97706);" onclick="saveTaskFromModal()">Создать Поручение</button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL: Firebase Security Rules -->
+    <div id="modal-firebase-rules" class="modal-overlay">
+        <div class="modal-window" style="max-width: 600px;">
+            <h3 style="margin-bottom:12px; font-size:1.3rem;"><i class="fa-solid fa-shield-halved" style="color:var(--accent)"></i> Firebase Database Rules</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">Вставьте эти правила во вкладку <b>Rules</b> в вашей консоли Firebase Database:</p>
+            <textarea id="firebase-rules-code" class="form-control" style="height:220px; font-family:'JetBrains Mono', monospace; font-size:0.8rem; line-height:1.4;" readonly>{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}</textarea>
+            <div style="display:flex; gap:12px; margin-top:20px;">
+                <button class="btn-submit" style="background:rgba(255,255,255,0.1);" onclick="closeModal('modal-firebase-rules')">Закрыть</button>
+                <button class="btn-submit" style="background:linear-gradient(135deg, var(--accent), #10b981);" onclick="copyFirebaseRules()">Скопировать Правила</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- Firebase Config & Initial Database State ---
+        // --- Firebase Config & Initial Database ---
         const SECRET_TEACHER_KEY = "EDSH-2026-TEACHER";
         const firebaseConfig = { databaseURL: "https://journal-64b12-default-rtdb.firebaseio.com/" };
         let firebaseDb = null;
         try { firebase.initializeApp(firebaseConfig); firebaseDb = firebase.database(); } catch(e){}
 
-        // CATALOG OF SKINS & CHARACTERS (ALL PRICED IN COINS 🪙)
+        // CATALOG OF SKINS & CHARACTERS
         const SKINS_CATALOG = [
             { id: 'default', name: 'Обычный Ученик', icon: '🎓', desc: 'Классический школьный образ', price: 0, limited: false },
             { id: 'cyber', name: 'Кибер-Школьник', icon: '🤖', desc: 'Хацкер и мастер информатики', price: 100, limited: false },
             { id: 'wizard', name: 'Маг Знаний', icon: '🧙‍♂️', desc: 'Повелитель высшей математики', price: 250, limited: false },
             { id: 'phoenix', name: 'Золотой Феникс', icon: '👑', desc: 'Эксклюзивный лимитированный скин', price: 500, limited: true },
-            { id: 'dragon', name: 'Дракон Успеха', icon: '🐉', desc: 'Легендарный образ за монеты', price: 1000, limited: true }
+            { id: 'dragon', name: 'Дракон Успеха', icon: '🐉', desc: 'Легендарный образ за кристаллы', price: 1000, limited: true }
         ];
 
-        // Базовая структура базы данных
+        // Пустое начальное состояние
         const defaultState = {
             classes: [],
             teachers: [],
             students: [],
-            tasks: [],
-            transactions: []
+            tasks: []
         };
 
-        let appState = JSON.parse(localStorage.getItem('edsh_pro_data_v2')) || defaultState;
+        let appState = defaultState;
         let currentStudentIdx = null;
         let currentTeacherIdx = null;
         let selectedStudentIndexForGrade = null;
         let selectedModalGradeVal = 5;
 
-        // Сохранение локально и синхонизация с Firebase Database
+        // Отправка данных исключительно в Firebase Realtime Database
         function saveState() {
-            localStorage.setItem('edsh_pro_data_v2', JSON.stringify(appState));
             if (firebaseDb) {
                 firebaseDb.ref('journal_state').set(appState);
             }
         }
 
-        // Логирование транзакций монет
-        function logTransaction(studentId, amount, description) {
-            if (!appState.transactions) appState.transactions = [];
-            appState.transactions.push({
-                id: 'TRX-' + Date.now(),
-                studentId: studentId,
-                amount: amount,
-                description: description,
-                date: new Date().toLocaleString('ru-RU')
-            });
+        // Подписка на данные из Firebase
+        function initFirebaseSync() {
+            if (firebaseDb) {
+                firebaseDb.ref('journal_state').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        appState = data;
+                        if (!appState.classes) appState.classes = [];
+                        if (!appState.teachers) appState.teachers = [];
+                        if (!appState.students) appState.students = [];
+                        if (!appState.tasks) appState.tasks = [];
+                    } else {
+                        saveState();
+                    }
+                    refreshCurrentUI();
+                });
+            }
         }
 
-        // Полная очистка БД
+        function refreshCurrentUI() {
+            populateTeacherDropdown();
+            populateStudentDropdown('student-select-dropdown');
+
+            if (currentTeacherIdx !== null && document.getElementById('view-dash-teacher').classList.contains('active')) {
+                renderTeacherDashboard();
+            }
+            if (currentStudentIdx !== null && document.getElementById('view-dash-student').classList.contains('active')) {
+                renderStudentDashboard();
+            }
+            if (currentStudentIdx !== null && document.getElementById('view-dash-parent').classList.contains('active')) {
+                renderParentDashboard();
+            }
+        }
+
+        // Функция полной очистки БД в Firebase
         function clearAllData() {
-            if (confirm('Вы уверены, что хотите полностью очистить всю базу данных? Все учителя, ученики и монеты удалятся.')) {
-                appState = { classes: [], teachers: [], students: [], tasks: [], transactions: [] };
+            if (confirm('Вы уверены, что хотите полностью очистить всю базу данных в Firebase? Все записи удалятся безвозвратно.')) {
+                appState = {
+                    classes: [],
+                    teachers: [],
+                    students: [],
+                    tasks: []
+                };
                 saveState();
-                showToast('База данных очищена!');
-                setTimeout(() => location.reload(), 600);
+                showToast('База данных в Firebase успешно очищена!');
             }
         }
 
-        // Theme Switcher (Светлая и Тёмная темы)
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('edsh_theme', newTheme);
-            updateThemeBtnUI(newTheme);
-        }
-
-        function updateThemeBtnUI(theme) {
-            const btnText = document.getElementById('theme-text');
-            const btnIcon = document.getElementById('theme-icon');
-            if (theme === 'light') {
-                if (btnText) btnText.innerText = 'Светлая тема';
-                if (btnIcon) btnIcon.className = 'fa-solid fa-sun';
-            } else {
-                if (btnText) btnText.innerText = 'Тёмная тема';
-                if (btnIcon) btnIcon.className = 'fa-solid fa-moon';
-            }
-        }
-
-        // Device Mode Switch
+        // Viewport Device Toggle
         function setDeviceMode(mode) {
             const vp = document.getElementById('app-viewport');
             const btnPc = document.getElementById('btn-device-pc');
@@ -1437,7 +1434,7 @@
         }
 
         // Toasts & Loader
-        function showToast(msg) {
+        function showToast(msg, type='info') {
             const hub = document.getElementById('toast-hub');
             const t = document.createElement('div');
             t.className = 'toast-item';
@@ -1450,7 +1447,7 @@
             const l = document.getElementById('global-loader');
             document.getElementById('loader-status-text').innerText = statusText;
             l.classList.add('active');
-            setTimeout(() => { l.classList.remove('active'); if(cb) cb(); }, 400);
+            setTimeout(() => { l.classList.remove('active'); if(cb) cb(); }, 500);
         }
 
         function switchView(viewId) {
@@ -1465,10 +1462,22 @@
                 populateTeacherDropdown();
                 switchView('view-auth-teacher');
             } else if (role === 'student') {
+                populateStudentDropdown('student-select-dropdown');
                 switchView('view-auth-student');
             } else if (role === 'parent') {
                 switchView('view-auth-parent');
             }
+        }
+
+        function populateStudentDropdown(id) {
+            const dropdown = document.getElementById(id);
+            if (!appState.students || !appState.students.length) {
+                dropdown.innerHTML = '<option value="">Нет зарегистрированных учеников</option>';
+                return;
+            }
+            dropdown.innerHTML = appState.students.map((s, idx) => 
+                `<option value="${idx}">${s.name} (${s.class || 'Без класса'}) - [ID: ${s.id}]</option>`
+            ).join('');
         }
 
         function populateTeacherDropdown() {
@@ -1482,7 +1491,7 @@
             ).join('');
         }
 
-        // Teacher Registration & Auth
+        // Teacher Auth & Registration
         function toggleTeacherAuthTab(mode) {
             if (mode === 'login') {
                 document.getElementById('teacher-form-login').style.display = 'block';
@@ -1525,7 +1534,7 @@
             if (!appState.teachers) appState.teachers = [];
             appState.teachers.push(newTeacher);
             saveState();
-            showToast('Учитель зарегистрирован!');
+            showToast('Учитель зарегистрирован в Firebase!');
             populateTeacherDropdown();
             toggleTeacherAuthTab('login');
         }
@@ -1601,7 +1610,7 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${student.name}</b><br><small style="color:var(--accent);">ID: ${student.id}</small></td>
-                        <td><span style="background:rgba(99,102,241,0.15); padding:4px 8px; border-radius:6px; font-weight:700;">${student.class}</span></td>
+                        <td><span style="background:rgba(255,255,255,0.08); padding:4px 8px; border-radius:6px; font-weight:700;">${student.class}</span></td>
                         <td><code>${student.pinPlain}</code></td>
                         <td>${gradesHtml || '<span style="color:var(--text-muted)">Нет оценок</span>'}</td>
                         <td>
@@ -1639,7 +1648,7 @@
                 return;
             }
             container.innerHTML = appState.classes.map(c => 
-                `<span style="background:rgba(99,102,241,0.18); border:1px solid rgba(99,102,241,0.35); padding:8px 16px; border-radius:30px; font-weight:700; display:inline-flex; align-items:center; gap:8px;"><i class="fa-solid fa-users"></i> ${c}</span>`
+                `<span style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); padding:8px 16px; border-radius:30px; font-weight:700; display:inline-flex; align-items:center; gap:8px;"><i class="fa-solid fa-users"></i> ${c}</span>`
             ).join('');
         }
 
@@ -1667,12 +1676,13 @@
                 class: cName,
                 pinPlain: pin,
                 coins: 0,
+                crystals: 0,
                 activeSkin: 'default',
                 unlockedSkins: ['default'],
                 grades: {}
             });
             saveState();
-            showToast(`Ученик зарегистрирован! ID: ${newId}, PIN: ${pin}`);
+            showToast(`Ученик создан в Firebase! ID: ${newId}, PIN: ${pin}`);
             document.getElementById('new-student-fullname').value = '';
             renderTeacherJournalTable();
             switchTeacherTab('tab-journal');
@@ -1683,7 +1693,7 @@
                 appState.students.splice(idx, 1);
                 saveState();
                 renderTeacherJournalTable();
-                showToast('Ученик удален');
+                showToast('Ученик удален из Firebase');
             }
         }
 
@@ -1693,31 +1703,26 @@
             });
         }
 
-        // Student Auth (Entrance by ID & PIN)
+        // Student Auth & Dashboard
         function submitStudentAuth() {
-            const studentIdInput = document.getElementById('student-id-input').value.trim().toUpperCase();
+            const idx = document.getElementById('student-select-dropdown').value;
             const pin = document.getElementById('student-pin-input').value.trim();
-
-            if (!studentIdInput || !pin) {
-                showToast('Введите ID и PIN ученика!');
+            
+            if (idx === "" || !appState.students[idx]) {
+                showToast('Ученики еще не зарегистрированы!');
                 return;
             }
 
-            if (!appState.students) appState.students = [];
-            const idx = appState.students.findIndex(s => s.id.toUpperCase() === studentIdInput);
+            const student = appState.students[idx];
 
-            if (idx !== -1) {
-                const student = appState.students[idx];
-                if (student.pinPlain === pin) {
-                    currentStudentIdx = idx;
-                    showToast(`Привет, ${student.name}!`);
-                    renderStudentDashboard();
-                    switchView('view-dash-student');
-                    return;
-                }
+            if (student && student.pinPlain === pin) {
+                currentStudentIdx = idx;
+                showToast(`Привет, ${student.name}!`);
+                renderStudentDashboard();
+                switchView('view-dash-student');
+            } else {
+                showToast('Неверный PIN ученика!');
             }
-
-            showToast('❌ Неверный ID ученика или PIN!');
         }
 
         function renderStudentDashboard() {
@@ -1726,11 +1731,13 @@
 
             if (!student.unlockedSkins) student.unlockedSkins = ['default'];
             if (!student.activeSkin) student.activeSkin = 'default';
+            if (!student.crystals) student.crystals = 0;
 
             document.getElementById('student-dash-fullname').innerText = student.name;
             document.getElementById('student-dash-classbadge').innerText = student.class;
             document.getElementById('student-dash-id').innerText = `ID: ${student.id}`;
             document.getElementById('student-coins-count').innerText = student.coins || 0;
+            document.getElementById('student-crystals-count').innerText = student.crystals || 0;
 
             renderStudentRoomAndSkins();
 
@@ -1756,7 +1763,6 @@
             document.getElementById('stat-total-count').innerText = allGrades.length;
 
             renderStudentTasks();
-            renderTransactionsTable(student.id, 'student-history-table-body');
         }
 
         function renderStudentRoomAndSkins() {
@@ -1779,7 +1785,7 @@
                 } else if (isUnlocked) {
                     actionBtnHtml = `<button class="btn-submit" style="padding:8px 14px; font-size:0.82rem;" onclick="equipSkin('${skin.id}')">Надеть</button>`;
                 } else {
-                    actionBtnHtml = `<button class="btn-submit" style="background:linear-gradient(135deg, var(--gold), #d97706); padding:8px 14px; font-size:0.82rem;" onclick="buySkin('${skin.id}')">Купить за ${skin.price} 🪙</button>`;
+                    actionBtnHtml = `<button class="btn-submit" style="background:linear-gradient(135deg, var(--crystal), #2563eb); padding:8px 14px; font-size:0.82rem;" onclick="buySkin('${skin.id}')">Купить за ${skin.price} 💎</button>`;
                 }
 
                 return `
@@ -1808,16 +1814,27 @@
 
             if (!skin) return;
 
-            if ((student.coins || 0) >= skin.price) {
-                student.coins -= skin.price;
+            if ((student.crystals || 0) >= skin.price) {
+                student.crystals -= skin.price;
                 student.unlockedSkins.push(skin.id);
                 student.activeSkin = skin.id;
-                logTransaction(student.id, -skin.price, `Покупка скина: ${skin.name}`);
                 saveState();
                 renderStudentDashboard();
-                showToast(`Скин "${skin.name}" куплен! 🎉`);
+                showToast(`Скин "${skin.name}" куплен и надет! 🎉`);
             } else {
-                showToast('❌ Недостаточно монеток! Выполняйте поручения.');
+                showToast('❌ Недостаточно Кристалликов! Пополните баланс.');
+            }
+        }
+
+        function buyCrystalsPrompt() {
+            const amount = prompt('Сколько Кристалликов 💎 вы хотите купить? (Имитация покупки за реальные деньги)', '100');
+            const num = parseInt(amount);
+            if (!isNaN(num) && num > 0) {
+                const student = appState.students[currentStudentIdx];
+                student.crystals = (student.crystals || 0) + num;
+                saveState();
+                renderStudentDashboard();
+                showToast(`Покупка успешна! Начислено +${num} 💎`);
             }
         }
 
@@ -1862,12 +1879,12 @@
         }
 
         function switchStudentTab(tabId) {
-            ['student-tab-home', 'student-tab-grades', 'student-tab-tasks', 'student-tab-history'].forEach(id => {
+            ['student-tab-home', 'student-tab-grades', 'student-tab-tasks'].forEach(id => {
                 document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
             });
         }
 
-        // Parent Auth & Dashboard
+        // DIRECT PARENT AUTH (BY STUDENT ID AND PIN)
         function submitParentAuth() {
             const studentIdInput = document.getElementById('parent-student-id-input').value.trim().toUpperCase();
             const pin = document.getElementById('parent-pin-input').value.trim();
@@ -1901,10 +1918,10 @@
             document.getElementById('parent-child-name').innerText = student.name;
             document.getElementById('parent-child-id-tag').innerText = `ID: ${student.id}`;
             document.getElementById('parent-child-coins').innerText = student.coins || 0;
+            document.getElementById('parent-child-crystals').innerText = student.crystals || 0;
 
             renderParentTasks();
             renderParentGrades();
-            renderTransactionsTable(student.id, 'parent-history-table-body');
         }
 
         function renderParentTasks() {
@@ -1944,7 +1961,6 @@
             if(task && task.status !== 'completed') {
                 task.status = 'completed';
                 student.coins = (student.coins || 0) + task.coins;
-                logTransaction(student.id, task.coins, `Награда за задание: ${task.title}`);
                 saveState();
                 renderParentDashboard();
                 showToast(`Монетки (+${task.coins} 🪙) зачислены ребенку!`);
@@ -1953,12 +1969,11 @@
 
         function payoutCoinsDialog() {
             const student = appState.students[currentStudentIdx];
-            const coinsToDeduct = prompt(`У ребенка сейчас ${student.coins || 0} монет. Сколько монет списать за подарок/карманные деньги?`, student.coins || 0);
+            const coinsToDeduct = prompt(`У ребенка сейчас ${student.coins} монет. Сколько монет вы хотите списать за выданный приз/деньги?`, student.coins);
             const num = parseInt(coinsToDeduct);
 
-            if(!isNaN(num) && num > 0 && num <= (student.coins || 0)) {
+            if(!isNaN(num) && num > 0 && num <= student.coins) {
                 student.coins -= num;
-                logTransaction(student.id, -num, 'Списание монет родителем (награда/подарок)');
                 saveState();
                 renderParentDashboard();
                 showToast(`Списано ${num} монет. Награда выдана! 🎉`);
@@ -1981,35 +1996,8 @@
             }
         }
 
-        function renderTransactionsTable(studentId, tbodyId) {
-            const tbody = document.getElementById(tbodyId);
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            if (!appState.transactions) appState.transactions = [];
-            const list = appState.transactions.filter(t => t.studentId === studentId);
-
-            if (!list.length) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:20px;">История транзакций пока пуста</td></tr>';
-                return;
-            }
-
-            list.slice().reverse().forEach(t => {
-                const isPositive = t.amount > 0;
-                const sign = isPositive ? '+' : '';
-                const color = isPositive ? 'var(--grade-5)' : 'var(--grade-2)';
-                tbody.innerHTML += `
-                    <tr>
-                        <td><small style="color:var(--text-muted);">${t.date}</small></td>
-                        <td>${t.description}</td>
-                        <td><b style="color:${color};">${sign}${t.amount} 🪙</b></td>
-                    </tr>
-                `;
-            });
-        }
-
         function switchParentTab(tabId) {
-            ['parent-tab-tasks', 'parent-tab-grades', 'parent-tab-history'].forEach(id => {
+            ['parent-tab-tasks', 'parent-tab-grades'].forEach(id => {
                 document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
             });
         }
@@ -2028,6 +2016,17 @@
 
         function openAddTaskModal() {
             document.getElementById('modal-add-task').classList.add('active');
+        }
+
+        function openFirebaseRulesModal() {
+            document.getElementById('modal-firebase-rules').classList.add('active');
+        }
+
+        function copyFirebaseRules() {
+            const code = document.getElementById('firebase-rules-code');
+            code.select();
+            document.execCommand('copy');
+            showToast('Правила скопированы в буфер обмена!');
         }
 
         function closeModal(id) {
@@ -2074,10 +2073,7 @@
 
         // DOM Initialization
         window.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('edsh_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeBtnUI(savedTheme);
-            saveState();
+            initFirebaseSync();
         });
     </script>
 </body>
