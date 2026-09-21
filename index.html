@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Интеллектуальный Электронный Дневник — ЭДШ-Pro Ultimate v2.5 (Firebase Secure)</title>
+    <title>Интеллектуальный Электронный Дневник — ЭДШ-Pro Ultimate v3.0 (Coins Only & Attendance)</title>
     <!-- Google Fonts & Font Awesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,8 +26,6 @@
             --accent-glow: rgba(6, 182, 212, 0.45);
             --gold: #f59e0b;
             --gold-glow: rgba(245, 158, 11, 0.45);
-            --crystal: #3b82f6;
-            --crystal-glow: rgba(59, 130, 246, 0.55);
             --bg-dark: #090d16;
             --card-bg: rgba(22, 31, 49, 0.78);
             --card-border: rgba(255, 255, 255, 0.12);
@@ -95,12 +93,12 @@
             100% { transform: translate(70px, 90px) scale(1.18); }
         }
 
-        /* Top Bar Controls */
+        /* Top Bar Controls with Accurate Realtime Clock */
         .top-bar {
             position: relative;
             z-index: 1000;
             width: 100%;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.88);
             border-bottom: 1px solid var(--card-border);
             backdrop-filter: blur(16px);
             padding: 10px 24px;
@@ -108,7 +106,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
 
         .device-mode-toggle {
@@ -141,29 +139,30 @@
             box-shadow: 0 4px 12px var(--primary-glow);
         }
 
-        .quick-tools-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .tool-btn {
-            background: rgba(255, 255, 255, 0.06);
+        /* Realtime Digital Clock Widget */
+        .clock-widget {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--card-border);
-            color: var(--text-main);
-            padding: 6px 12px;
+            padding: 6px 16px;
             border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        .tool-btn:hover {
-            background: rgba(255, 255, 255, 0.14);
-            border-color: rgba(255, 255, 255, 0.25);
+        .clock-date-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .clock-time-text {
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
         /* App Viewport Container */
@@ -603,25 +602,11 @@
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.15));
             border: 1px solid rgba(245, 158, 11, 0.45);
             color: #fbbf24;
-            padding: 8px 14px;
+            padding: 10px 16px;
             border-radius: 20px;
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 1.05rem;
             box-shadow: 0 4px 14px var(--gold-glow);
-        }
-
-        .crystal-pill-badge {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
-            border: 1px solid rgba(59, 130, 246, 0.45);
-            color: #60a5fa;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 1rem;
-            box-shadow: 0 4px 14px var(--crystal-glow);
         }
 
         .side-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
@@ -701,6 +686,40 @@
         .grade-3 { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .grade-2 { background: linear-gradient(135deg, #ef4444, #dc2626); }
 
+        /* Attendance Badges (Н, У, Б, О) */
+        .att-btn {
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+        }
+
+        .att-btn-n { background: #ef4444; }
+        .att-btn-u { background: #f59e0b; }
+        .att-btn-b { background: #ec4899; }
+        .att-btn-o { background: #06b6d4; }
+        .att-btn-ok { background: #10b981; }
+
+        .att-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.82rem;
+            color: #fff;
+        }
+
+        .att-badge-n { background: #ef4444; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); }
+        .att-badge-u { background: #f59e0b; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4); }
+        .att-badge-b { background: #ec4899; box-shadow: 0 2px 8px rgba(236, 72, 153, 0.4); }
+        .att-badge-o { background: #06b6d4; box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4); }
+
         .modern-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
         .modern-table th { padding: 10px 16px; text-align: left; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
         .modern-table tbody tr { background: rgba(15, 23, 42, 0.45); border: 1px solid var(--card-border); transition: background 0.2s ease; }
@@ -709,7 +728,7 @@
         .modern-table td:first-child { border-left: 1px solid var(--card-border); border-top-left-radius: var(--radius-sm); border-bottom-left-radius: var(--radius-sm); }
         .modern-table td:last-child { border-right: 1px solid var(--card-border); border-top-right-radius: var(--radius-sm); border-bottom-right-radius: var(--radius-sm); }
 
-        /* Tasks & Skins Cards */
+        /* Tasks, Homework & Skins Cards */
         .task-item-card {
             background: rgba(15, 23, 42, 0.55);
             border: 1px solid var(--card-border);
@@ -720,6 +739,15 @@
             justify-content: space-between;
             align-items: center;
             gap: 16px;
+        }
+
+        .homework-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 16px;
         }
 
         .task-coin-reward {
@@ -779,8 +807,8 @@
         }
 
         .skin-item-card.limited {
-            border-color: rgba(236, 72, 153, 0.6);
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(15, 23, 42, 0.6));
+            border-color: rgba(245, 158, 11, 0.6);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(15, 23, 42, 0.6));
         }
 
         .skin-item-card:hover {
@@ -792,7 +820,7 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             color: #fff;
             font-size: 0.65rem;
             font-weight: 800;
@@ -855,7 +883,7 @@
             border-radius: var(--radius-lg);
             padding: 32px;
             width: 90%;
-            max-width: 500px;
+            max-width: 520px;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
         }
     </style>
@@ -868,16 +896,23 @@
         <div class="orb orb-3"></div>
     </div>
 
-    <!-- Top Device & Admin Bar -->
+    <!-- Top Bar Controls with Live Clock & Date -->
     <div class="top-bar">
-        <div style="font-weight:700; font-size:0.88rem; display:flex; align-items:center; gap:8px;">
-            <i class="fa-solid fa-sliders" style="color:var(--primary)"></i> Режим устройства:
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="font-weight:700; font-size:0.88rem; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-sliders" style="color:var(--primary)"></i> Режим:
+            </div>
+            <div class="device-mode-toggle">
+                <button class="device-btn active" id="btn-device-pc" onclick="setDeviceMode('desktop')"><i class="fa-solid fa-desktop"></i> ПК</button>
+                <button class="device-btn" id="btn-device-mobile" onclick="setDeviceMode('mobile')"><i class="fa-solid fa-mobile-screen-button"></i> Телефон</button>
+            </div>
         </div>
-        <div class="device-mode-toggle">
-            <button class="device-btn active" id="btn-device-pc" onclick="setDeviceMode('desktop')"><i class="fa-solid fa-desktop"></i> ПК</button>
-            <button class="device-btn" id="btn-device-mobile" onclick="setDeviceMode('mobile')"><i class="fa-solid fa-mobile-screen-button"></i> Телефон</button>
-        </div>
-       
+
+        <!-- Dynamic Realtime Clock -->
+        <div class="clock-widget">
+            <i class="fa-regular fa-clock" style="color:var(--gold);"></i>
+            <span class="clock-date-text" id="clock-date-display">21 сент. 2026 г.</span>
+            <span class="clock-time-text" id="clock-time-display">15:44:18</span>
         </div>
     </div>
 
@@ -898,11 +933,11 @@
         <header class="navbar">
             <a class="brand-logo" onclick="switchView('view-roles')">
                 <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-                <span>ЭДШ<span style="color: var(--secondary);">Pro</span> <span style="font-size:0.75rem; color:var(--accent); font-weight:600;">v2.5 Firebase</span></span>
+                <span>ЭДШ<span style="color: var(--secondary);">Pro</span> <span style="font-size:0.75rem; color:var(--accent); font-weight:600;">v3.0</span></span>
             </a>
             <div class="status-pill">
                 <span class="status-dot"></span>
-                <span>Firebase Realtime Sync</span>
+                <span>Firebase Sync Active</span>
             </div>
         </header>
 
@@ -910,27 +945,27 @@
         <main id="view-roles" class="view-screen active">
             <div class="roles-container">
                 <h1 class="hero-title">Интеллектуальный Электронный Дневник</h1>
-                <p class="hero-subtitle">Контроль успеваемости, система монеток 🪙, лимитированные скины 💎 и личный дом ученика!</p>
+                <p class="hero-subtitle">Контроль успеваемости, система монеток 🪙, домашние задания и учёт посещаемости!</p>
                 
                 <div class="role-cards-grid">
                     <div class="role-card-item" onclick="startAuthFlow('teacher')">
                         <div class="role-badge-icon icon-teacher"><i class="fa-solid fa-chalkboard-user"></i></div>
                         <h3 class="role-title">Учитель</h3>
-                        <p class="role-desc">Регистрация по спец-ключу, свой список предметов, создание классов и выставление оценок</p>
+                        <p class="role-desc">Создание ДЗ на каждый день, выставление оценок и отметка пропусков (Н, У, Б, О)</p>
                         <div class="role-action-btn">Кабинет Учителя <i class="fa-solid fa-arrow-right"></i></div>
                     </div>
 
                     <div class="role-card-item" onclick="startAuthFlow('student')">
                         <div class="role-badge-icon icon-student"><i class="fa-solid fa-user-graduate"></i></div>
                         <h3 class="role-title">Ученик</h3>
-                        <p class="role-desc">Дневник, гардероб персонажей, покупка эксклюзивных скинов и задания от родителей</p>
+                        <p class="role-desc">Дневник, просмотр ДЗ, гардероб персонажей и покупка скинов за монетки 🪙</p>
                         <div class="role-action-btn">Вход для Ученика <i class="fa-solid fa-arrow-right"></i></div>
                     </div>
 
                     <div class="role-card-item" onclick="startAuthFlow('parent')">
                         <div class="role-badge-icon icon-parent"><i class="fa-solid fa-people-roof"></i></div>
                         <h3 class="role-title">Родитель</h3>
-                        <p class="role-desc">Прямой вход по ID ребенка без поиска по школе, выдача поручений и награждение</p>
+                        <p class="role-desc">Прямой вход по ID ребёнка, выдача домашних поручений за монетки 🪙</p>
                         <div class="role-action-btn">Родительский Контроль <i class="fa-solid fa-arrow-right"></i></div>
                     </div>
                 </div>
@@ -1017,7 +1052,7 @@
                 <button class="btn-nav-back" onclick="switchView('view-roles')"><i class="fa-solid fa-chevron-left"></i> Назад</button>
                 <div class="auth-header">
                     <h2><i class="fa-solid fa-shield-heart" style="color: var(--accent);"></i> Родительский Контроль</h2>
-                    <p>Введите ID вашего ребёнка и его PIN (без поиска по школе!)</p>
+                    <p>Введите ID вашего ребёнка и его PIN</p>
                 </div>
                 <div class="form-group">
                     <label class="form-label">ID Ребёнка (например: STU-9402)</label>
@@ -1044,6 +1079,8 @@
                     </div>
                     <ul class="side-menu">
                         <li class="side-menu-item active" onclick="switchTeacherTab('tab-journal')"><i class="fa-solid fa-book-open"></i> Журнал Оценок</li>
+                        <li class="side-menu-item" onclick="switchTeacherTab('tab-attendance')"><i class="fa-solid fa-clipboard-user"></i> Посещаемость (Н/У/Б/О)</li>
+                        <li class="side-menu-item" onclick="switchTeacherTab('tab-homework')"><i class="fa-solid fa-book-bookmark"></i> Домашнее Задание</li>
                         <li class="side-menu-item" onclick="switchTeacherTab('tab-add-student')"><i class="fa-solid fa-user-plus"></i> Добавить Ученика</li>
                         <li class="side-menu-item" onclick="switchTeacherTab('tab-manage-classes')"><i class="fa-solid fa-layer-group"></i> Мои Классы</li>
                         <li class="side-menu-item" style="color: var(--grade-2);" onclick="switchView('view-roles')"><i class="fa-solid fa-power-off"></i> Выйти</li>
@@ -1075,7 +1112,76 @@
                         </div>
                     </div>
 
-                    <!-- Tab 2: Add Student -->
+                    <!-- Tab 2: Attendance Marking (Пропуски: Н, У, Б, О) -->
+                    <div id="tab-attendance" class="dash-content-card" style="display: none;">
+                        <div class="content-header">
+                            <h2>Отметка Посещаемости Учеников</h2>
+                        </div>
+                        <div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap; background:rgba(15,23,42,0.5); padding:16px; border-radius:var(--radius-md); border:1px solid var(--card-border);">
+                            <div style="flex:1; min-width:180px;">
+                                <label class="form-label">Класс</label>
+                                <select id="att-class-select" class="form-control" onchange="renderTeacherAttendanceTable()"></select>
+                            </div>
+                            <div style="flex:1; min-width:180px;">
+                                <label class="form-label">Предмет</label>
+                                <select id="att-subject-select" class="form-control" onchange="renderTeacherAttendanceTable()"></select>
+                            </div>
+                            <div style="flex:1; min-width:180px;">
+                                <label class="form-label">Дата урока</label>
+                                <input type="date" id="att-date-input" class="form-control" onchange="renderTeacherAttendanceTable()">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:14px; font-size:0.85rem; color:var(--text-muted);">
+                            Обозначения: <span class="att-badge att-badge-n">Н</span> - Не был (энка) | <span class="att-badge att-badge-u">У</span> - Уважительная | <span class="att-badge att-badge-b">Б</span> - Болезнь | <span class="att-badge att-badge-o">О</span> - Отпуск
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ученик</th>
+                                        <th>Текущий Статус</th>
+                                        <th>Поставить пропуск / статус</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teacher-attendance-rows"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Homework Management -->
+                    <div id="tab-homework" class="dash-content-card" style="display: none;">
+                        <div class="content-header"><h2>Создание и управление ДЗ на каждый день</h2></div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:26px;">
+                            <div>
+                                <div class="form-group">
+                                    <label class="form-label">Выберите класс</label>
+                                    <select id="hw-class-select" class="form-control"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Предмет</label>
+                                    <select id="hw-subject-select" class="form-control"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Дата выполнения ДЗ</label>
+                                    <input type="date" id="hw-date-input" class="form-control">
+                                </div>
+                            </div>
+                            <div>
+                                <div class="form-group">
+                                    <label class="form-label">Текст домашнего задания</label>
+                                    <textarea id="hw-text-input" class="form-control" style="height: 142px; resize:none;" placeholder="Введите параграф, номера упражнений или описание задания..."></textarea>
+                                </div>
+                                <button class="btn-submit" onclick="addNewHomeworkByTeacher()"><i class="fa-solid fa-plus"></i> Опубликовать ДЗ</button>
+                            </div>
+                        </div>
+
+                        <h3 style="margin-bottom:16px;">Выданные домашние задания:</h3>
+                        <div id="teacher-homework-list"></div>
+                    </div>
+
+                    <!-- Tab 4: Add Student -->
                     <div id="tab-add-student" class="dash-content-card" style="display: none;">
                         <div class="content-header"><h2>Регистрация нового ученика</h2></div>
                         <div style="max-width: 480px;">
@@ -1091,7 +1197,7 @@
                         </div>
                     </div>
 
-                    <!-- Tab 3: Create Classes -->
+                    <!-- Tab 5: Create Classes -->
                     <div id="tab-manage-classes" class="dash-content-card" style="display: none;">
                         <div class="content-header"><h2>Управление Классами</h2></div>
                         <div style="max-width: 480px; margin-bottom:28px;">
@@ -1126,18 +1232,12 @@
                             <span>Монетки:</span>
                             <span><span id="student-coins-count">0</span> 🪙</span>
                         </div>
-                        <div class="crystal-pill-badge">
-                            <span>Кристаллики:</span>
-                            <span><span id="student-crystals-count">0</span> 💎</span>
-                        </div>
-                        <button class="tool-btn" style="width:100%; justify-content:center; background:linear-gradient(135deg, rgba(59,130,246,0.3), rgba(147,51,234,0.3)); border-color:var(--crystal);" onclick="buyCrystalsPrompt()">
-                            <i class="fa-solid fa-cart-shopping"></i> Пополнить 💎
-                        </button>
                     </div>
 
                     <ul class="side-menu">
                         <li class="side-menu-item active" onclick="switchStudentTab('student-tab-home')"><i class="fa-solid fa-house-user"></i> Мой Дом & Персонаж</li>
-                        <li class="side-menu-item" onclick="switchStudentTab('student-tab-grades')"><i class="fa-solid fa-star"></i> Мои Оценки</li>
+                        <li class="side-menu-item" onclick="switchStudentTab('student-tab-homework')"><i class="fa-solid fa-book-bookmark"></i> Домашнее Задание</li>
+                        <li class="side-menu-item" onclick="switchStudentTab('student-tab-grades')"><i class="fa-solid fa-star"></i> Оценки и Пропуски</li>
                         <li class="side-menu-item" onclick="switchStudentTab('student-tab-tasks')"><i class="fa-solid fa-list-check"></i> Задания & Монеты</li>
                         <li class="side-menu-item" style="color: var(--grade-2);" onclick="switchView('view-roles')"><i class="fa-solid fa-power-off"></i> Выйти</li>
                     </ul>
@@ -1148,7 +1248,7 @@
                     <div id="student-tab-home" class="dash-content-card">
                         <div class="content-header">
                             <h2>🏠 Моя Комната и Персонаж</h2>
-                            <span class="badge-subject-tag"><i class="fa-solid fa-shirt"></i> Гардероб Скинов</span>
+                            <span class="badge-subject-tag"><i class="fa-solid fa-shirt"></i> Магазин за Монетки 🪙</span>
                         </div>
 
                         <div class="home-room-container">
@@ -1159,12 +1259,20 @@
                         </div>
 
                         <div class="content-header" style="margin-top:30px;">
-                            <h2>🔥 Магазин Лимитированных Скинов (за 💎)</h2>
+                            <h2>🔥 Магазин Лимитированных Скинов (только за 🪙)</h2>
                         </div>
                         <div class="skins-shop-grid" id="skins-shop-container"></div>
                     </div>
 
-                    <!-- Grades Tab -->
+                    <!-- Homework Tab for Student -->
+                    <div id="student-tab-homework" class="dash-content-card" style="display: none;">
+                        <div class="content-header">
+                            <h2>📚 Домашнее Задание для вашего класса</h2>
+                        </div>
+                        <div id="student-homework-list"></div>
+                    </div>
+
+                    <!-- Grades & Attendance Tab -->
                     <div id="student-tab-grades" class="dash-content-card" style="display: none;">
                         <div class="stats-grid">
                             <div class="stat-card">
@@ -1188,6 +1296,9 @@
                             </thead>
                             <tbody id="student-grades-table-body"></tbody>
                         </table>
+
+                        <div class="content-header" style="margin-top:32px;"><h2>История посещаемости (Пропуски)</h2></div>
+                        <div id="student-attendance-history-list"></div>
                     </div>
 
                     <!-- Tasks & Coins Tab -->
@@ -1215,10 +1326,6 @@
                         <div class="coin-pill-badge">
                             <span>Монеты ребенка:</span>
                             <span><span id="parent-child-coins">0</span> 🪙</span>
-                        </div>
-                        <div class="crystal-pill-badge">
-                            <span>Кристаллы ребенка:</span>
-                            <span><span id="parent-child-crystals">0</span> 💎</span>
                         </div>
                     </div>
 
@@ -1312,35 +1419,23 @@
         </div>
     </div>
 
-    <!-- MODAL: Firebase Security Rules -->
-    <div id="modal-firebase-rules" class="modal-overlay">
-        <div class="modal-window" style="max-width: 650px;">
-            <h3 style="margin-bottom:12px; font-size:1.3rem;"><i class="fa-solid fa-shield-halved" style="color:var(--accent)"></i> Безопасные Правила Firebase (Realtime Database Rules)</h3>
-            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">Скопируйте код ниже и вставьте во вкладку <b>Rules</b> в консоли Firebase Realtime Database для обеспечения абсолютной безопасности данных:</p>
-            <textarea id="firebase-rules-code" class="form-control" style="height:220px; font-family:'JetBrains Mono', monospace; font-size:0.8rem; line-height:1.4;" readonly>{
-  "rules": {
-    "journal_state": {
-      ".read": true,
-      ".write": true,
-      "classes": {
-        ".validate": "newData.hasChildren()"
-      },
-      "students": {
-        "$student_id": {
-          ".validate": "newData.hasChildren(['id', 'name', 'pinPlain'])"
-        }
-      }
-    }
-  }
-}</textarea>
-            <div style="display:flex; gap:12px; margin-top:20px;">
-                <button class="btn-submit" style="background:rgba(255,255,255,0.1);" onclick="closeModal('modal-firebase-rules')">Закрыть</button>
-                <button class="btn-submit" style="background:linear-gradient(135deg, var(--accent), #10b981);" onclick="copyFirebaseRules()">Скопировать Правила</button>
-            </div>
-        </div>
-    </div>
-
     <script>
+        // --- Realtime Dynamic Clock ---
+        function updateRealtimeClock() {
+            const now = new Date();
+            const dateOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+            const dateStr = now.toLocaleDateString('ru-RU', dateOptions);
+            const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            const dateEl = document.getElementById('clock-date-display');
+            const timeEl = document.getElementById('clock-time-display');
+
+            if (dateEl) dateEl.innerText = dateStr;
+            if (timeEl) timeEl.innerText = timeStr;
+        }
+        setInterval(updateRealtimeClock, 1000);
+        updateRealtimeClock();
+
         // --- Firebase Config & Initial Database ---
         const SECRET_TEACHER_KEY = "EDSH-2026-TEACHER";
         const firebaseConfig = { 
@@ -1357,13 +1452,13 @@
             console.error("Firebase init error:", e);
         }
 
-        // CATALOG OF SKINS & CHARACTERS
+        // CATALOG OF SKINS & CHARACTERS (ALL FOR COINS 🪙)
         const SKINS_CATALOG = [
             { id: 'default', name: 'Обычный Ученик', icon: '🎓', desc: 'Классический школьный образ', price: 0, limited: false },
             { id: 'cyber', name: 'Кибер-Школьник', icon: '🤖', desc: 'Хацкер и мастер информатики', price: 100, limited: false },
             { id: 'wizard', name: 'Маг Знаний', icon: '🧙‍♂️', desc: 'Повелитель высшей математики', price: 250, limited: false },
             { id: 'phoenix', name: 'Золотой Феникс', icon: '👑', desc: 'Эксклюзивный лимитированный скин', price: 500, limited: true },
-            { id: 'dragon', name: 'Дракон Успеха', icon: '🐉', desc: 'Легендарный образ за кристаллы', price: 1000, limited: true }
+            { id: 'dragon', name: 'Дракон Успеха', icon: '🐉', desc: 'Легендарный образ', price: 1000, limited: true }
         ];
 
         // Пустое начальное состояние
@@ -1371,7 +1466,8 @@
             classes: [],
             teachers: [],
             students: [],
-            tasks: []
+            tasks: [],
+            homework: []
         };
 
         let appState = defaultState;
@@ -1405,6 +1501,7 @@
                         if (!appState.teachers) appState.teachers = [];
                         if (!appState.students) appState.students = [];
                         if (!appState.tasks) appState.tasks = [];
+                        if (!appState.homework) appState.homework = [];
                     } else {
                         saveState();
                     }
@@ -1429,8 +1526,6 @@
                 renderParentDashboard();
             }
         }
-
-        // Полное удаление данных исключительно из Firebase
         
         // Viewport Device Toggle
         function setDeviceMode(mode) {
@@ -1552,7 +1647,7 @@
             if (!appState.teachers) appState.teachers = [];
             appState.teachers.push(newTeacher);
             saveState();
-            showToast('Учитель зарегистрирован в Firebase!');
+            showToast('Учитель зарегистрирован!');
             populateTeacherDropdown();
             toggleTeacherAuthTab('login');
         }
@@ -1590,17 +1685,43 @@
             ).join('');
 
             const classFilter = document.getElementById('teacher-class-filter');
+            const attClassSelect = document.getElementById('att-class-select');
+            const hwClassSelect = document.getElementById('hw-class-select');
             const studentClassSelect = document.getElementById('new-student-class');
 
+            const attSubSelect = document.getElementById('att-subject-select');
+            const hwSubSelect = document.getElementById('hw-subject-select');
+
+            // Populate subjects
+            const subOptions = subs.map(s => `<option value="${s}">${s}</option>`).join('');
+            attSubSelect.innerHTML = subOptions;
+            hwSubSelect.innerHTML = subOptions;
+
+            // Date picker defaults to today
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (!document.getElementById('att-date-input').value) {
+                document.getElementById('att-date-input').value = todayStr;
+            }
+            if (!document.getElementById('hw-date-input').value) {
+                document.getElementById('hw-date-input').value = todayStr;
+            }
+
             if (appState.classes && appState.classes.length) {
-                classFilter.innerHTML = appState.classes.map(c => `<option value="${c}">${c}</option>`).join('');
-                studentClassSelect.innerHTML = appState.classes.map(c => `<option value="${c}">${c}</option>`).join('');
+                const classOpts = appState.classes.map(c => `<option value="${c}">${c}</option>`).join('');
+                classFilter.innerHTML = classOpts;
+                attClassSelect.innerHTML = classOpts;
+                hwClassSelect.innerHTML = classOpts;
+                studentClassSelect.innerHTML = classOpts;
             } else {
                 classFilter.innerHTML = '<option value="">Нет классов</option>';
+                attClassSelect.innerHTML = '<option value="">Нет классов</option>';
+                hwClassSelect.innerHTML = '<option value="">Нет классов</option>';
                 studentClassSelect.innerHTML = '<option value="">Сначала создайте класс</option>';
             }
             
             renderTeacherJournalTable();
+            renderTeacherAttendanceTable();
+            renderTeacherHomework();
             renderClassesChips();
         }
 
@@ -1640,6 +1761,129 @@
                     </tr>
                 `;
             });
+        }
+
+        // Attendance Table Handler (Н, У, Б, О)
+        function renderTeacherAttendanceTable() {
+            const selClass = document.getElementById('att-class-select').value;
+            const selSub = document.getElementById('att-subject-select').value;
+            const dateVal = document.getElementById('att-date-input').value;
+            const tbody = document.getElementById('teacher-attendance-rows');
+            tbody.innerHTML = '';
+
+            if (!selClass || !selSub || !dateVal) return;
+
+            const filteredStudents = (appState.students || []).filter(s => s.class === selClass);
+
+            if (!filteredStudents.length) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:20px;">Ученики не найдены.</td></tr>';
+                return;
+            }
+
+            filteredStudents.forEach(student => {
+                const globalIdx = appState.students.findIndex(s => s.id === student.id);
+                const attObj = (student.attendance && student.attendance[dateVal] && student.attendance[dateVal][selSub]) ? student.attendance[dateVal][selSub] : 'Присутствует';
+
+                let badgeHtml = `<span style="color:var(--grade-5); font-weight:700;">Присутствует</span>`;
+                if (attObj === 'Н') badgeHtml = `<span class="att-badge att-badge-n">Н (Прогул)</span>`;
+                else if (attObj === 'У') badgeHtml = `<span class="att-badge att-badge-u">У (Уважительная)</span>`;
+                else if (attObj === 'Б') badgeHtml = `<span class="att-badge att-badge-b">Б (Болезнь)</span>`;
+                else if (attObj === 'О') badgeHtml = `<span class="att-badge att-badge-o">О (Отпуск)</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${student.name}</b></td>
+                        <td>${badgeHtml}</td>
+                        <td>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button class="att-btn att-btn-n" onclick="setStudentAttendance(${globalIdx}, 'Н')">Н</button>
+                                <button class="att-btn att-btn-u" onclick="setStudentAttendance(${globalIdx}, 'У')">У</button>
+                                <button class="att-btn att-btn-b" onclick="setStudentAttendance(${globalIdx}, 'Б')">Б</button>
+                                <button class="att-btn att-btn-o" onclick="setStudentAttendance(${globalIdx}, 'О')">О</button>
+                                <button class="att-btn att-btn-ok" onclick="setStudentAttendance(${globalIdx}, 'Присутствует')">✓ Был</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function setStudentAttendance(studentIdx, status) {
+            const dateVal = document.getElementById('att-date-input').value;
+            const selSub = document.getElementById('att-subject-select').value;
+            const student = appState.students[studentIdx];
+
+            if (!student.attendance) student.attendance = {};
+            if (!student.attendance[dateVal]) student.attendance[dateVal] = {};
+
+            if (status === 'Присутствует') {
+                delete student.attendance[dateVal][selSub];
+            } else {
+                student.attendance[dateVal][selSub] = status;
+            }
+
+            saveState();
+            renderTeacherAttendanceTable();
+            showToast(`Статус [${status}] обновлен для ${student.name}`);
+        }
+
+        // Homework Management Logic
+        function addNewHomeworkByTeacher() {
+            const selClass = document.getElementById('hw-class-select').value;
+            const selSub = document.getElementById('hw-subject-select').value;
+            const hwDate = document.getElementById('hw-date-input').value;
+            const hwText = document.getElementById('hw-text-input').value.trim();
+
+            if (!selClass || !selSub || !hwDate || !hwText) {
+                showToast('Заполните все поля для вычистки ДЗ!');
+                return;
+            }
+
+            if (!appState.homework) appState.homework = [];
+
+            appState.homework.push({
+                id: 'HW-' + Date.now(),
+                class: selClass,
+                subject: selSub,
+                date: hwDate,
+                text: hwText
+            });
+
+            saveState();
+            document.getElementById('hw-text-input').value = '';
+            renderTeacherHomework();
+            showToast(`ДЗ по предмету ${selSub} опубликовано!`);
+        }
+
+        function renderTeacherHomework() {
+            const listDiv = document.getElementById('teacher-homework-list');
+            if (!appState.homework || !appState.homework.length) {
+                listDiv.innerHTML = '<p style="color:var(--text-muted)">Нет созданных домашних заданий.</p>';
+                return;
+            }
+
+            listDiv.innerHTML = appState.homework.slice().reverse().map(hw => `
+                <div class="homework-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div>
+                            <span class="badge-subject-tag"><i class="fa-solid fa-users"></i> ${hw.class}</span>
+                            <span class="badge-subject-tag" style="background:rgba(236,72,153,0.2); border-color:rgba(236,72,153,0.4); color:#f472b6;"><i class="fa-solid fa-book"></i> ${hw.subject}</span>
+                        </div>
+                        <span style="font-size:0.85rem; color:var(--gold); font-weight:700;"><i class="fa-regular fa-calendar"></i> На: ${hw.date}</span>
+                    </div>
+                    <p style="font-size:0.95rem; color:#fff; line-height:1.5;">${hw.text}</p>
+                    <div style="text-align:right; margin-top:10px;">
+                        <button class="tool-btn" style="color:var(--grade-2); border-color:rgba(239,68,68,0.3);" onclick="deleteHomework('${hw.id}')"><i class="fa-solid fa-trash"></i> Удалить ДЗ</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteHomework(hwId) {
+            appState.homework = appState.homework.filter(h => h.id !== hwId);
+            saveState();
+            renderTeacherHomework();
+            showToast('ДЗ удалено');
         }
 
         function addNewClassByTeacher() {
@@ -1694,13 +1938,13 @@
                 class: cName,
                 pinPlain: pin,
                 coins: 0,
-                crystals: 0,
                 activeSkin: 'default',
                 unlockedSkins: ['default'],
-                grades: {}
+                grades: {},
+                attendance: {}
             });
             saveState();
-            showToast(`Ученик создан в Firebase! ID: ${newId}, PIN: ${pin}`);
+            showToast(`Ученик создан! ID: ${newId}, PIN: ${pin}`);
             document.getElementById('new-student-fullname').value = '';
             renderTeacherJournalTable();
             switchTeacherTab('tab-journal');
@@ -1711,12 +1955,12 @@
                 appState.students.splice(idx, 1);
                 saveState();
                 renderTeacherJournalTable();
-                showToast('Ученик удален из Firebase');
+                showToast('Ученик удален');
             }
         }
 
         function switchTeacherTab(tabId) {
-            ['tab-journal', 'tab-add-student', 'tab-manage-classes'].forEach(id => {
+            ['tab-journal', 'tab-attendance', 'tab-homework', 'tab-add-student', 'tab-manage-classes'].forEach(id => {
                 document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
             });
         }
@@ -1749,15 +1993,14 @@
 
             if (!student.unlockedSkins) student.unlockedSkins = ['default'];
             if (!student.activeSkin) student.activeSkin = 'default';
-            if (!student.crystals) student.crystals = 0;
 
             document.getElementById('student-dash-fullname').innerText = student.name;
             document.getElementById('student-dash-classbadge').innerText = student.class;
             document.getElementById('student-dash-id').innerText = `ID: ${student.id}`;
             document.getElementById('student-coins-count').innerText = student.coins || 0;
-            document.getElementById('student-crystals-count').innerText = student.crystals || 0;
 
             renderStudentRoomAndSkins();
+            renderStudentHomeworkList();
 
             let allGrades = [];
             const tbody = document.getElementById('student-grades-table-body');
@@ -1780,7 +2023,64 @@
             document.getElementById('stat-avg-grade').innerText = totalAvg;
             document.getElementById('stat-total-count').innerText = allGrades.length;
 
+            renderStudentAttendanceHistory();
             renderStudentTasks();
+        }
+
+        function renderStudentHomeworkList() {
+            const student = appState.students[currentStudentIdx];
+            const listDiv = document.getElementById('student-homework-list');
+
+            const filteredHw = (appState.homework || []).filter(h => h.class === student.class);
+
+            if (!filteredHw.length) {
+                listDiv.innerHTML = '<p style="color:var(--text-muted)">На данный момент заданий нет. Отдыхайте! 🎉</p>';
+                return;
+            }
+
+            listDiv.innerHTML = filteredHw.slice().reverse().map(hw => `
+                <div class="homework-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span class="badge-subject-tag" style="background:rgba(236,72,153,0.2); border-color:rgba(236,72,153,0.4); color:#f472b6;"><i class="fa-solid fa-book"></i> ${hw.subject}</span>
+                        <span style="font-size:0.85rem; color:var(--gold); font-weight:700;"><i class="fa-regular fa-calendar"></i> Срок: ${hw.date}</span>
+                    </div>
+                    <p style="font-size:0.95rem; color:#fff; line-height:1.5;">${hw.text}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderStudentAttendanceHistory() {
+            const student = appState.students[currentStudentIdx];
+            const listDiv = document.getElementById('student-attendance-history-list');
+
+            if (!student.attendance || !Object.keys(student.attendance).length) {
+                listDiv.innerHTML = '<p style="color:var(--text-muted)">Записей о пропусках нет. Отличное посещение!</p>';
+                return;
+            }
+
+            let historyHtml = '';
+            for (let dateKey in student.attendance) {
+                for (let subKey in student.attendance[dateKey]) {
+                    const st = student.attendance[dateKey][subKey];
+                    let badge = '';
+                    if (st === 'Н') badge = `<span class="att-badge att-badge-n">Н (Прогул)</span>`;
+                    else if (st === 'У') badge = `<span class="att-badge att-badge-u">У (Уважительная)</span>`;
+                    else if (st === 'Б') badge = `<span class="att-badge att-badge-b">Б (Болезнь)</span>`;
+                    else if (st === 'О') badge = `<span class="att-badge att-badge-o">О (Отпуск)</span>`;
+
+                    historyHtml += `
+                        <div class="task-item-card">
+                            <div>
+                                <h4>${subKey}</h4>
+                                <small style="color:var(--text-muted)">Дата урока: ${dateKey}</small>
+                            </div>
+                            <div>${badge}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            listDiv.innerHTML = historyHtml || '<p style="color:var(--text-muted)">Пропусков не зафиксировано.</p>';
         }
 
         function renderStudentRoomAndSkins() {
@@ -1803,7 +2103,7 @@
                 } else if (isUnlocked) {
                     actionBtnHtml = `<button class="btn-submit" style="padding:8px 14px; font-size:0.82rem;" onclick="equipSkin('${skin.id}')">Надеть</button>`;
                 } else {
-                    actionBtnHtml = `<button class="btn-submit" style="background:linear-gradient(135deg, var(--crystal), #2563eb); padding:8px 14px; font-size:0.82rem;" onclick="buySkin('${skin.id}')">Купить за ${skin.price} 💎</button>`;
+                    actionBtnHtml = `<button class="btn-submit" style="background:linear-gradient(135deg, var(--gold), #d97706); padding:8px 14px; font-size:0.82rem;" onclick="buySkin('${skin.id}')">Купить за ${skin.price} 🪙</button>`;
                 }
 
                 return `
@@ -1832,27 +2132,15 @@
 
             if (!skin) return;
 
-            if ((student.crystals || 0) >= skin.price) {
-                student.crystals -= skin.price;
+            if ((student.coins || 0) >= skin.price) {
+                student.coins -= skin.price;
                 student.unlockedSkins.push(skin.id);
                 student.activeSkin = skin.id;
                 saveState();
                 renderStudentDashboard();
-                showToast(`Скин "${skin.name}" куплен и надет! 🎉`);
+                showToast(`Скин "${skin.name}" куплен за ${skin.price} 🪙 и надет! 🎉`);
             } else {
-                showToast('❌ Недостаточно Кристалликов! Пополните баланс.');
-            }
-        }
-
-        function buyCrystalsPrompt() {
-            const amount = prompt('Сколько Кристалликов 💎 вы хотите купить?', '100');
-            const num = parseInt(amount);
-            if (!isNaN(num) && num > 0) {
-                const student = appState.students[currentStudentIdx];
-                student.crystals = (student.crystals || 0) + num;
-                saveState();
-                renderStudentDashboard();
-                showToast(`Пополнение успешно! Начислено +${num} 💎`);
+                showToast('❌ Недостаточно монеток 🪙! Выполняйте задания родителей.');
             }
         }
 
@@ -1897,7 +2185,7 @@
         }
 
         function switchStudentTab(tabId) {
-            ['student-tab-home', 'student-tab-grades', 'student-tab-tasks'].forEach(id => {
+            ['student-tab-home', 'student-tab-homework', 'student-tab-grades', 'student-tab-tasks'].forEach(id => {
                 document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
             });
         }
@@ -1936,7 +2224,6 @@
             document.getElementById('parent-child-name').innerText = student.name;
             document.getElementById('parent-child-id-tag').innerText = `ID: ${student.id}`;
             document.getElementById('parent-child-coins').innerText = student.coins || 0;
-            document.getElementById('parent-child-crystals').innerText = student.crystals || 0;
 
             renderParentTasks();
             renderParentGrades();
@@ -1987,10 +2274,10 @@
 
         function payoutCoinsDialog() {
             const student = appState.students[currentStudentIdx];
-            const coinsToDeduct = prompt(`У ребенка сейчас ${student.coins} монет. Сколько монет вы хотите списать за выданный приз/деньги?`, student.coins);
+            const coinsToDeduct = prompt(`У ребенка сейчас ${student.coins || 0} монет. Сколько монет вы хотите списать за выданный приз/деньги?`, student.coins || 0);
             const num = parseInt(coinsToDeduct);
 
-            if(!isNaN(num) && num > 0 && num <= student.coins) {
+            if(!isNaN(num) && num > 0 && num <= (student.coins || 0)) {
                 student.coins -= num;
                 saveState();
                 renderParentDashboard();
@@ -2034,17 +2321,6 @@
 
         function openAddTaskModal() {
             document.getElementById('modal-add-task').classList.add('active');
-        }
-
-        function openFirebaseRulesModal() {
-            document.getElementById('modal-firebase-rules').classList.add('active');
-        }
-
-        function copyFirebaseRules() {
-            const code = document.getElementById('firebase-rules-code');
-            code.select();
-            document.execCommand('copy');
-            showToast('Правила скопированы в буфер обмена!');
         }
 
         function closeModal(id) {
