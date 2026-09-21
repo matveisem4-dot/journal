@@ -547,6 +547,19 @@
 
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(99, 102, 241, 0.55); }
 
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .tool-btn:hover { background: rgba(255, 255, 255, 0.15); }
+
         /* Dashboards Layout */
         .dashboard-layout {
             display: grid;
@@ -1006,8 +1019,8 @@
                         <p>Введите спец-ключ и укажите ваши предметы</p>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">🔑 Специальный ключ доступа</label>
-                        <input type="text" id="reg-teacher-secret-key" class="form-control" placeholder="Например: EDSH-2026-TEACHER" value="">
+                        <label class="form-label">🔑 Специальный ключ доступа (из Firebase)</label>
+                        <input type="text" id="reg-teacher-secret-key" class="form-control" placeholder="Введите ключ учителя">
                     </div>
                     <div class="form-group">
                         <label class="form-label">ФИО Учителя</label>
@@ -1032,11 +1045,11 @@
                 <button class="btn-nav-back" onclick="switchView('view-roles')"><i class="fa-solid fa-chevron-left"></i> Назад</button>
                 <div class="auth-header">
                     <h2>Кабинет Ученика</h2>
-                    <p>Выберите свое имя из списка</p>
+                    <p>Введите ваш ID и персональный PIN</p>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Ученик</label>
-                    <select id="student-select-dropdown" class="form-control"></select>
+                    <label class="form-label">ID Ученика (например: STU-9402)</label>
+                    <input type="text" id="student-id-input" class="form-control" placeholder="STU-XXXX" style="text-transform: uppercase;">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Персональный PIN ученика</label>
@@ -1052,15 +1065,15 @@
                 <button class="btn-nav-back" onclick="switchView('view-roles')"><i class="fa-solid fa-chevron-left"></i> Назад</button>
                 <div class="auth-header">
                     <h2><i class="fa-solid fa-shield-heart" style="color: var(--accent);"></i> Родительский Контроль</h2>
-                    <p>Введите ID вашего ребёнка и его PIN</p>
+                    <p>Введите ID вашего ребёнка и родительский ключ</p>
                 </div>
                 <div class="form-group">
                     <label class="form-label">ID Ребёнка (например: STU-9402)</label>
                     <input type="text" id="parent-student-id-input" class="form-control" placeholder="STU-XXXX" style="text-transform: uppercase;">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">PIN доступа ребёнка</label>
-                    <input type="password" id="parent-pin-input" class="form-control" placeholder="••••••" maxlength="6">
+                    <label class="form-label">🔑 Специальный родительский ключ (из Firebase)</label>
+                    <input type="password" id="parent-secret-key-input" class="form-control" placeholder="Введите ключ родителя">
                 </div>
                 <button class="btn-submit" style="background: linear-gradient(135deg, var(--accent), #10b981);" onclick="submitParentAuth()">Быстрый вход в дневник</button>
             </div>
@@ -1437,21 +1450,9 @@
         updateRealtimeClock();
 
         // --- Firebase Config & Initial Database ---
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-const firebaseConfig = { 
-    databaseURL: "https://journal-64b12-default-rtdb.firebaseio.com/" 
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-let SECRET_TEACHER_KEY;
-
-onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
-    SECRET_TEACHER_KEY = snapshot.val();
-});
+        const firebaseConfig = { 
+            databaseURL: "https://journal-64b12-default-rtdb.firebaseio.com/" 
+        };
         
         let firebaseDb = null;
         try { 
@@ -1463,7 +1464,7 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
             console.error("Firebase init error:", e);
         }
 
-        // CATALOG OF SKINS & CHARACTERS (ALL FOR COINS 🪙)
+        // CATALOG OF SKINS & CHARACTERS
         const SKINS_CATALOG = [
             { id: 'default', name: 'Обычный Ученик', icon: '🎓', desc: 'Классический школьный образ', price: 0, limited: false },
             { id: 'cyber', name: 'Кибер-Школьник', icon: '🤖', desc: 'Хацкер и мастер информатики', price: 100, limited: false },
@@ -1472,8 +1473,12 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
             { id: 'dragon', name: 'Дракон Успеха', icon: '🐉', desc: 'Легендарный образ', price: 1000, limited: true }
         ];
 
-        // Пустое начальное состояние
+        // Начальное состояние (секретные ключи динамически хранятся в Firebase)
         const defaultState = {
+            keys: {
+                teacher_key: "EDSH-2026-TEACHER",
+                parent_key: "EDSH-2026-PARENT"
+            },
             classes: [],
             teachers: [],
             students: [],
@@ -1487,7 +1492,7 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
         let selectedStudentIndexForGrade = null;
         let selectedModalGradeVal = 5;
 
-        // Отправка данных исключительно в Firebase Realtime Database
+        // Сохранение состояния в Firebase Realtime Database
         function saveState() {
             if (firebaseDb) {
                 firebaseDb.ref('journal_state').set(appState)
@@ -1500,7 +1505,7 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
             }
         }
 
-        // Подписка на данные из Firebase
+        // Подписка на синхронизацию с Firebase
         function initFirebaseSync() {
             if (firebaseDb) {
                 triggerLoader('Синхронизация с Firebase...', () => {});
@@ -1508,6 +1513,9 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
                         appState = data;
+                        if (!appState.keys) {
+                            appState.keys = { teacher_key: "EDSH-2026-TEACHER", parent_key: "EDSH-2026-PARENT" };
+                        }
                         if (!appState.classes) appState.classes = [];
                         if (!appState.teachers) appState.teachers = [];
                         if (!appState.students) appState.students = [];
@@ -1525,7 +1533,6 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
 
         function refreshCurrentUI() {
             populateTeacherDropdown();
-            populateStudentDropdown('student-select-dropdown');
 
             if (currentTeacherIdx !== null && document.getElementById('view-dash-teacher').classList.contains('active')) {
                 renderTeacherDashboard();
@@ -1586,22 +1593,10 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
                 populateTeacherDropdown();
                 switchView('view-auth-teacher');
             } else if (role === 'student') {
-                populateStudentDropdown('student-select-dropdown');
                 switchView('view-auth-student');
             } else if (role === 'parent') {
                 switchView('view-auth-parent');
             }
-        }
-
-        function populateStudentDropdown(id) {
-            const dropdown = document.getElementById(id);
-            if (!appState.students || !appState.students.length) {
-                dropdown.innerHTML = '<option value="">Нет зарегистрированных учеников</option>';
-                return;
-            }
-            dropdown.innerHTML = appState.students.map((s, idx) => 
-                `<option value="${idx}">${s.name} (${s.class || 'Без класса'}) - [ID: ${s.id}]</option>`
-            ).join('');
         }
 
         function populateTeacherDropdown() {
@@ -1636,8 +1631,11 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
             const rawSubjects = document.getElementById('reg-teacher-subject').value.trim();
             const pin = document.getElementById('reg-teacher-pin').value.trim();
 
-            if (key !== SECRET_TEACHER_KEY) {
-                showToast('❌ Неверный специальный ключ доступа!');
+            // Секретный ключ берётся непосредственно из Firebase!
+            const validTeacherKey = (appState.keys && appState.keys.teacher_key) ? appState.keys.teacher_key : "EDSH-2026-TEACHER";
+
+            if (key !== validTeacherKey) {
+                showToast('❌ Неверный специальный ключ доступа учителя!');
                 return;
             }
 
@@ -1846,7 +1844,7 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
             const hwText = document.getElementById('hw-text-input').value.trim();
 
             if (!selClass || !selSub || !hwDate || !hwText) {
-                showToast('Заполните все поля для вычистки ДЗ!');
+                showToast('Заполните все поля для публикации ДЗ!');
                 return;
             }
 
@@ -1978,24 +1976,33 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
 
         // Student Auth & Dashboard
         function submitStudentAuth() {
-            const idx = document.getElementById('student-select-dropdown').value;
+            const studentIdInput = document.getElementById('student-id-input').value.trim().toUpperCase();
             const pin = document.getElementById('student-pin-input').value.trim();
             
-            if (idx === "" || !appState.students[idx]) {
+            if (!studentIdInput || !pin) {
+                showToast('Введите ID и PIN!');
+                return;
+            }
+
+            if (!appState.students || !appState.students.length) {
                 showToast('Ученики еще не зарегистрированы!');
                 return;
             }
 
-            const student = appState.students[idx];
+            const studentIndex = appState.students.findIndex(s => s.id && s.id.toUpperCase() === studentIdInput);
 
-            if (student && student.pinPlain === pin) {
-                currentStudentIdx = idx;
-                showToast(`Привет, ${student.name}!`);
-                renderStudentDashboard();
-                switchView('view-dash-student');
-            } else {
-                showToast('Неверный PIN ученика!');
+            if (studentIndex !== -1) {
+                const student = appState.students[studentIndex];
+                if (student.pinPlain === pin) {
+                    currentStudentIdx = studentIndex;
+                    showToast(`Привет, ${student.name}!`);
+                    renderStudentDashboard();
+                    switchView('view-dash-student');
+                    return;
+                }
             }
+
+            showToast('❌ Неверный ID или PIN ученика!');
         }
 
         function renderStudentDashboard() {
@@ -2204,28 +2211,34 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
         // Parent Auth & Dashboard
         function submitParentAuth() {
             const studentIdInput = document.getElementById('parent-student-id-input').value.trim().toUpperCase();
-            const pin = document.getElementById('parent-pin-input').value.trim();
+            const parentKeyInput = document.getElementById('parent-secret-key-input').value.trim();
 
-            if (!studentIdInput || !pin) {
-                showToast('Введите ID и PIN ребёнка!');
+            if (!studentIdInput || !parentKeyInput) {
+                showToast('Заполните ID ребёнка и родительский ключ!');
+                return;
+            }
+
+            // Получаем секретный ключ родителя из Firebase!
+            const validParentKey = (appState.keys && appState.keys.parent_key) ? appState.keys.parent_key : "EDSH-2026-PARENT";
+
+            if (parentKeyInput !== validParentKey) {
+                showToast('❌ Неверный специальный родительский ключ!');
                 return;
             }
 
             if (!appState.students) appState.students = [];
-            const studentIndex = appState.students.findIndex(s => s.id.toUpperCase() === studentIdInput);
+            const studentIndex = appState.students.findIndex(s => s.id && s.id.toUpperCase() === studentIdInput);
 
             if (studentIndex !== -1) {
                 const student = appState.students[studentIndex];
-                if (student.pinPlain === pin) {
-                    currentStudentIdx = studentIndex;
-                    showToast(`Вход выполнен! Ученик: ${student.name}`);
-                    renderParentDashboard();
-                    switchView('view-dash-parent');
-                    return;
-                }
+                currentStudentIdx = studentIndex;
+                showToast(`Вход выполнен! Ученик: ${student.name}`);
+                renderParentDashboard();
+                switchView('view-dash-parent');
+                return;
             }
 
-            showToast('❌ Неверный ID ребёнка или PIN!');
+            showToast('❌ Ученик с таким ID не найден!');
         }
 
         function renderParentDashboard() {
@@ -2272,34 +2285,119 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
 
         function approveTaskByParent(taskId) {
             const task = appState.tasks.find(t => t.id === taskId);
-            const student = appState.students[currentStudentIdx];
-
-            if(task && task.status !== 'completed') {
+            if (task) {
                 task.status = 'completed';
-                student.coins = (student.coins || 0) + task.coins;
+                const student = appState.students[currentStudentIdx];
+                if (student) {
+                    student.coins = (student.coins || 0) + (task.coins || 0);
+                }
                 saveState();
                 renderParentDashboard();
-                showToast(`Монетки (+${task.coins} 🪙) зачислены ребенку!`);
+                showToast(`Задание "${task.title}" подтверждено! +${task.coins} 🪙 начислено.`);
             }
+        }
+
+        function switchParentTab(tabId) {
+            ['parent-tab-tasks', 'parent-tab-grades'].forEach(id => {
+                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+            });
+        }
+
+        function openAddGradeModal(idx) {
+            selectedStudentIndexForGrade = idx;
+            const teacher = appState.teachers[currentTeacherIdx];
+            const subs = teacher ? (teacher.subjects || [teacher.subject]) : [];
+            
+            const sel = document.getElementById('modal-grade-subject-select');
+            sel.innerHTML = subs.map(s => `<option value="${s}">${s}</option>`).join('');
+            document.getElementById('modal-grade-comment').value = '';
+            selectedModalGradeVal = 5;
+            document.getElementById('modal-add-grade').classList.add('active');
+        }
+
+        function selectModalGradeValue(val) {
+            selectedModalGradeVal = val;
+        }
+
+        function saveGradeFromModal() {
+            if (selectedStudentIndexForGrade === null) return;
+            const student = appState.students[selectedStudentIndexForGrade];
+            const sub = document.getElementById('modal-grade-subject-select').value;
+            
+            if (!student.grades) student.grades = {};
+            if (!student.grades[sub]) student.grades[sub] = [];
+            
+            student.grades[sub].push(selectedModalGradeVal);
+            saveState();
+            closeModal('modal-add-grade');
+            renderTeacherJournalTable();
+            showToast(`Оценка ${selectedModalGradeVal} выставлена ученику ${student.name}`);
+        }
+
+        function openAddTaskModal() {
+            document.getElementById('modal-task-title').value = '';
+            document.getElementById('modal-task-coins').value = '50';
+            document.getElementById('modal-add-task').classList.add('active');
+        }
+
+        function saveTaskFromModal() {
+            const student = appState.students[currentStudentIdx];
+            const title = document.getElementById('modal-task-title').value.trim();
+            const coins = parseInt(document.getElementById('modal-task-coins').value) || 0;
+
+            if (!title || coins <= 0) {
+                showToast('Введите корректное название и награду!');
+                return;
+            }
+
+            if (!appState.tasks) appState.tasks = [];
+
+            appState.tasks.push({
+                id: 'TSK-' + Date.now(),
+                studentId: student.id,
+                title: title,
+                coins: coins,
+                status: 'pending'
+            });
+
+            saveState();
+            closeModal('modal-add-task');
+            renderParentTasks();
+            showToast('Поручение создано!');
         }
 
         function payoutCoinsDialog() {
             const student = appState.students[currentStudentIdx];
-            const coinsToDeduct = prompt(`У ребенка сейчас ${student.coins || 0} монет. Сколько монет вы хотите списать за выданный приз/деньги?`, student.coins || 0);
-            const num = parseInt(coinsToDeduct);
-
-            if(!isNaN(num) && num > 0 && num <= (student.coins || 0)) {
-                student.coins -= num;
-                saveState();
-                renderParentDashboard();
-                showToast(`Списано ${num} монет. Награда выдана! 🎉`);
+            const amountStr = prompt(`Сколько монет списать у ${student.name} (Доступно: ${student.coins || 0} 🪙)?`);
+            if (!amountStr) return;
+            const amount = parseInt(amountStr);
+            if (isNaN(amount) || amount <= 0) {
+                showToast('Некорректная сумма');
+                return;
             }
+            if ((student.coins || 0) < amount) {
+                showToast('У ученика недостаточно монет!');
+                return;
+            }
+            student.coins -= amount;
+            saveState();
+            renderParentDashboard();
+            showToast(`Списано ${amount} 🪙. Выдайте реальную награду ребенку! 🎉`);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
         }
 
         function renderParentGrades() {
             const student = appState.students[currentStudentIdx];
             const tbody = document.getElementById('parent-grades-table-body');
             tbody.innerHTML = '';
+
+            if (!student || !student.grades || !Object.keys(student.grades).length) {
+                tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:var(--text-muted); padding:20px;">Оценок пока нет.</td></tr>';
+                return;
+            }
 
             for (let sub in student.grades) {
                 const list = student.grades[sub];
@@ -2312,71 +2410,7 @@ onValue(ref(db, 'SECRET_TEACHER_KEY'), (snapshot) => {
             }
         }
 
-        function switchParentTab(tabId) {
-            ['parent-tab-tasks', 'parent-tab-grades'].forEach(id => {
-                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
-            });
-        }
-
-        // Modals Logic
-        function openAddGradeModal(idx) {
-            selectedStudentIndexForGrade = idx;
-            const teacher = appState.teachers[currentTeacherIdx] || appState.teachers[0];
-            const teacherSubs = teacher ? (teacher.subjects || [teacher.subject || 'Математика']) : ['Математика'];
-
-            const sel = document.getElementById('modal-grade-subject-select');
-            sel.innerHTML = teacherSubs.map(s => `<option value="${s}">${s}</option>`).join('');
-
-            document.getElementById('modal-add-grade').classList.add('active');
-        }
-
-        function openAddTaskModal() {
-            document.getElementById('modal-add-task').classList.add('active');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        function selectModalGradeValue(val) { selectedModalGradeVal = val; }
-
-        function saveGradeFromModal() {
-            const sub = document.getElementById('modal-grade-subject-select').value;
-            const student = appState.students[selectedStudentIndexForGrade];
-
-            if (!student.grades) student.grades = {};
-            if (!student.grades[sub]) student.grades[sub] = [];
-            student.grades[sub].push(selectedModalGradeVal);
-
-            saveState();
-            closeModal('modal-add-grade');
-            renderTeacherJournalTable();
-            showToast(`Оценка ${selectedModalGradeVal} поставлена (${sub})!`);
-        }
-
-        function saveTaskFromModal() {
-            const title = document.getElementById('modal-task-title').value.trim();
-            const coins = parseInt(document.getElementById('modal-task-coins').value) || 50;
-            const student = appState.students[currentStudentIdx];
-
-            if(!title) return;
-            if(!appState.tasks) appState.tasks = [];
-
-            appState.tasks.push({
-                id: 'TSK-' + Date.now(),
-                studentId: student.id,
-                title: title,
-                coins: coins,
-                status: 'pending'
-            });
-
-            saveState();
-            closeModal('modal-add-task');
-            renderParentDashboard();
-            showToast('Задание успешно добавлено!');
-        }
-
-        // DOM Initialization
+        // Инициализация при старте
         window.addEventListener('DOMContentLoaded', () => {
             initFirebaseSync();
         });
