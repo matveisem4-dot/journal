@@ -1433,19 +1433,7 @@
         }
 
         // Полное удаление данных исключительно из Firebase
-        function clearAllData() {
-            if (confirm('Вы уверены, что хотите полностью очистить всю базу данных в Firebase? Данные удалятся для всех пользователей.')) {
-                appState = {
-                    classes: [],
-                    teachers: [],
-                    students: [],
-                    tasks: []
-                };
-                saveState();
-                showToast('База данных в Firebase успешно очищена!');
-            }
-        }
-
+        
         // Viewport Device Toggle
         function setDeviceMode(mode) {
             const vp = document.getElementById('app-viewport');
