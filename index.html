@@ -1845,7 +1845,7 @@
             const name = document.getElementById('reg-director-name').value.trim();
             const pin = document.getElementById('reg-director-pin').value.trim();
 
-            const storedKey = (appState.keys && appState.keys.director_key) ? appState.keys.director_key : "EDSH-2026-DIRECTOR";
+            const cleanKey = storeKey ? String(storeKey).trim() : '';
             const validDirectorKey = storedKey.trim().toUpperCase();
 
             if (keyInput !== validDirectorKey) {
