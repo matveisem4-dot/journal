@@ -1841,13 +1841,14 @@
         }
 
         function submitDirectorRegistration() {
-            const key = document.getElementById('reg-director-secret-key').value.trim();
+            const keyInput = document.getElementById('reg-director-secret-key').value.trim().toUpperCase();
             const name = document.getElementById('reg-director-name').value.trim();
             const pin = document.getElementById('reg-director-pin').value.trim();
 
-            const validDirectorKey = (appState.keys && appState.keys.director_key) ? appState.keys.director_key : "EDSH-2026-DIRECTOR";
+            const storedKey = (appState.keys && appState.keys.director_key) ? appState.keys.director_key : "EDSH-2026-DIRECTOR";
+            const validDirectorKey = storedKey.trim().toUpperCase();
 
-            if (key !== validDirectorKey) {
+            if (keyInput !== validDirectorKey) {
                 showToast('❌ Неверный специальный ключ директора!');
                 return;
             }
@@ -1900,9 +1901,9 @@
             }
             document.getElementById('dir-stat-total-coins').innerText = totalCoins;
 
-            document.getElementById('dir-key-teacher-input').value = appState.keys.teacher_key || "EDSH-2026-TEACHER";
-            document.getElementById('dir-key-parent-input').value = appState.keys.parent_key || "EDSH-2026-PARENT";
-            document.getElementById('dir-key-director-input').value = appState.keys.director_key || "EDSH-2026-DIRECTOR";
+            document.getElementById('dir-key-teacher-input').value = (appState.keys && appState.keys.teacher_key) ? appState.keys.teacher_key : "EDSH-2026-TEACHER";
+            document.getElementById('dir-key-parent-input').value = (appState.keys && appState.keys.parent_key) ? appState.keys.parent_key : "EDSH-2026-PARENT";
+            document.getElementById('dir-key-director-input').value = (appState.keys && appState.keys.director_key) ? appState.keys.director_key : "EDSH-2026-DIRECTOR";
 
             const tbody = document.getElementById('dir-teachers-table-body');
             tbody.innerHTML = '';
@@ -1925,6 +1926,7 @@
         }
 
         function saveDirectorKeys() {
+            if(!appState.keys) appState.keys = {};
             appState.keys.teacher_key = document.getElementById('dir-key-teacher-input').value.trim();
             appState.keys.parent_key = document.getElementById('dir-key-parent-input').value.trim();
             appState.keys.director_key = document.getElementById('dir-key-director-input').value.trim();
@@ -1974,14 +1976,15 @@
         }
 
         function submitTeacherRegistration() {
-            const key = document.getElementById('reg-teacher-secret-key').value.trim();
+            const keyInput = document.getElementById('reg-teacher-secret-key').value.trim().toUpperCase();
             const name = document.getElementById('reg-teacher-name').value.trim();
             const rawSubjects = document.getElementById('reg-teacher-subject').value.trim();
             const pin = document.getElementById('reg-teacher-pin').value.trim();
 
-            const validTeacherKey = (appState.keys && appState.keys.teacher_key) ? appState.keys.teacher_key : "EDSH-2026-TEACHER";
+            const storedKey = (appState.keys && appState.keys.teacher_key) ? appState.keys.teacher_key : "EDSH-2026-TEACHER";
+            const validTeacherKey = storedKey.trim().toUpperCase();
 
-            if (key !== validTeacherKey) {
+            if (keyInput !== validTeacherKey) {
                 showToast('❌ Неверный специальный ключ учителя!');
                 return;
             }
@@ -2090,7 +2093,7 @@
                     <tr>
                         <td><b>${student.name}</b><br><small style="color:var(--accent);">ID: ${student.id}</small></td>
                         <td><span style="background:rgba(255,255,255,0.08); padding:4px 8px; border-radius:6px; font-weight:700;">${student.class}</span></td>
-                        <td><code>${student.pinPlain}</code></td>
+                        <td><code>${student.pinPlain || student.pin}</code></td>
                         <td>${gradesHtml || '<span style="color:var(--text-muted)">Нет оценок</span>'}</td>
                         <td>
                             <div style="display:flex; gap:6px;">
@@ -2184,144 +2187,9 @@
             } else {
                 student.attendance[dateVal][selSub] = status;
             }
-
             saveState();
             renderTeacherAttendanceTable();
-            showToast(`Статус обновлен для ${student.name}`);
-        }
-
-        function addNewHomeworkByTeacher() {
-            const selClass = document.getElementById('hw-class-select').value;
-            const selSub = document.getElementById('hw-subject-select').value;
-            const hwDate = document.getElementById('hw-date-input').value;
-            const hwText = document.getElementById('hw-text-input').value.trim();
-
-            if (!selClass || !selSub || !hwDate || !hwText) {
-                showToast('Заполните все поля!');
-                return;
-            }
-
-            if (!appState.homework) appState.homework = [];
-            appState.homework.push({ id: 'HW-' + Date.now(), class: selClass, subject: selSub, date: hwDate, text: hwText });
-            saveState();
-            document.getElementById('hw-text-input').value = '';
-            renderTeacherHomework();
-            showToast(`ДЗ по предмету ${selSub} опубликовано!`);
-        }
-
-        function renderTeacherHomework() {
-            const listDiv = document.getElementById('teacher-homework-list');
-            if (!appState.homework || !appState.homework.length) {
-                listDiv.innerHTML = '<p style="color:var(--text-muted)">Нет созданных домашних заданий.</p>';
-                return;
-            }
-
-            listDiv.innerHTML = appState.homework.slice().reverse().map(hw => `
-                <div class="homework-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <div>
-                            <span class="badge-subject-tag"><i class="fa-solid fa-users"></i> ${hw.class}</span>
-                            <span class="badge-subject-tag" style="background:rgba(236,72,153,0.2); border-color:rgba(236,72,153,0.4); color:#f472b6;"><i class="fa-solid fa-book"></i> ${hw.subject}</span>
-                        </div>
-                        <span style="font-size:0.85rem; color:var(--gold); font-weight:700;"><i class="fa-regular fa-calendar"></i> Срок: ${hw.date}</span>
-                    </div>
-                    <p style="font-size:0.95rem; color:#fff; line-height:1.5;">${hw.text}</p>
-                    <div style="text-align:right; margin-top:10px;">
-                        <button class="tool-btn" style="color:var(--grade-2);" onclick="deleteHomework('${hw.id}')"><i class="fa-solid fa-trash"></i> Удалить ДЗ</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function deleteHomework(hwId) {
-            appState.homework = appState.homework.filter(h => h.id !== hwId);
-            saveState();
-            renderTeacherHomework();
-            showToast('Домашнее задание успешно удалено!');
-        }
-
-        function renderTeacherExcuses() {
-            const listDiv = document.getElementById('teacher-excuses-list');
-            if (!appState.excuses || !appState.excuses.length) {
-                listDiv.innerHTML = '<p style="color:var(--text-muted)">Объяснительных от родителей пока нет.</p>';
-                return;
-            }
-
-            listDiv.innerHTML = appState.excuses.slice().reverse().map(ex => `
-                <div class="homework-card" style="border-left-color: var(--accent);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <span style="font-weight:800; color:#fff;">Ученик ID: ${ex.studentId}</span>
-                        <span style="font-size:0.82rem; color:var(--gold);"><i class="fa-regular fa-calendar"></i> Дата: ${ex.date}</span>
-                    </div>
-                    <div style="color:var(--accent); font-weight:700; font-size:0.88rem; margin-bottom:4px;">Причина: ${ex.reason}</div>
-                    <p style="color:var(--text-muted); font-size:0.88rem;">${ex.text}</p>
-                </div>
-            `).join('');
-        }
-
-        function addNewClassByTeacher() {
-            const className = document.getElementById('new-class-name-input').value.trim();
-            if (!className) return;
-
-            if (!appState.classes) appState.classes = [];
-            if (!appState.classes.includes(className)) {
-                appState.classes.push(className);
-                saveState();
-                showToast(`Класс "${className}" создан!`);
-                document.getElementById('new-class-name-input').value = '';
-                renderTeacherDashboard();
-            } else {
-                showToast('Такой класс уже существует!');
-            }
-        }
-
-        function renderClassesChips() {
-            const container = document.getElementById('classes-chips-list');
-            if (!appState.classes || !appState.classes.length) {
-                container.innerHTML = '<span style="color:var(--text-muted)">Классы еще не созданы</span>';
-                return;
-            }
-            container.innerHTML = appState.classes.map(c => `<span style="background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); padding:8px 16px; border-radius:30px; font-weight:700;"><i class="fa-solid fa-users"></i> ${c}</span>`).join('');
-        }
-
-        function createNewStudentRecord() {
-            const name = document.getElementById('new-student-fullname').value.trim();
-            const cName = document.getElementById('new-student-class').value;
-            
-            if(!name || !cName) {
-                showToast('Заполните ФИО и укажите класс!');
-                return;
-            }
-
-            const pin = Math.floor(100000 + Math.random() * 900000).toString();
-            const newId = 'STU-' + Math.floor(1000 + Math.random() * 9000);
-
-            if (!appState.students) appState.students = [];
-            appState.students.push({
-                id: newId,
-                name: name,
-                class: cName,
-                pinPlain: pin,
-                coins: 0,
-                activeSkin: 'default',
-                unlockedSkins: ['default'],
-                grades: {},
-                attendance: {}
-            });
-            saveState();
-            showToast(`Ученик создан! ID: ${newId}, PIN: ${pin}`);
-            document.getElementById('new-student-fullname').value = '';
-            renderTeacherJournalTable();
-            switchTeacherTab('tab-journal');
-        }
-
-        function deleteStudent(idx) {
-            if (confirm(`Удалить ученика ${appState.students[idx].name}?`)) {
-                appState.students.splice(idx, 1);
-                saveState();
-                renderTeacherJournalTable();
-                showToast('Ученик удален');
-            }
+            showToast(`Статус ${status} сохранен для ${student.name}`);
         }
 
         function switchTeacherTab(tabId) {
@@ -2330,204 +2198,194 @@
             });
         }
 
-        /* STUDENT LOGIC */
-        function submitStudentAuth() {
-            const studentIdInput = document.getElementById('student-id-input').value.trim().toUpperCase();
-            const pin = document.getElementById('student-pin-input').value.trim();
-
-            const studentIndex = (appState.students || []).findIndex(s => s.id && s.id.toUpperCase() === studentIdInput);
-
-            if (studentIndex !== -1 && appState.students[studentIndex].pinPlain === pin) {
-                currentStudentIdx = studentIndex;
-                showToast(`Привет, ${appState.students[studentIndex].name}!`);
-                renderStudentDashboard();
-                switchView('view-dash-student');
+        function addNewClassByTeacher() {
+            const nameInput = document.getElementById('new-class-name-input');
+            const val = nameInput.value.trim();
+            if (!val) { showToast('Введите название класса'); return; }
+            if (!appState.classes) appState.classes = [];
+            if (!appState.classes.includes(val)) {
+                appState.classes.push(val);
+                saveState();
+                nameInput.value = '';
+                showToast(`Класс ${val} успешно создан!`);
+                renderTeacherDashboard();
             } else {
-                showToast('❌ Неверный ID или PIN ученика!');
+                showToast('Такой класс уже существует');
             }
         }
 
+        function renderClassesChips() {
+            const container = document.getElementById('classes-chips-list');
+            if (!appState.classes || !appState.classes.length) {
+                container.innerHTML = '<span style="color:var(--text-muted)">Нет доступных классов</span>';
+                return;
+            }
+            container.innerHTML = appState.classes.map(c => `<span class="badge-subject-tag" style="font-size:0.9rem; padding:6px 12px;"><i class="fa-solid fa-users"></i> ${c}</span>`).join('');
+        }
+
+        function createNewStudentRecord() {
+            const cls = document.getElementById('new-student-class').value;
+            const name = document.getElementById('new-student-fullname').value.trim();
+
+            if (!cls) { showToast('Сначала выберите класс'); return; }
+            if (!name) { showToast('Введите ФИО ученика'); return; }
+
+            const randomId = 'STU-' + Math.floor(1000 + Math.random() * 9000);
+            const randomPin = Math.floor(100000 + Math.random() * 900000).toString();
+
+            if (!appState.students) appState.students = [];
+            appState.students.push({
+                id: randomId,
+                name: name,
+                class: cls,
+                pinPlain: randomPin,
+                coins: 0,
+                activeSkin: 'default',
+                inventory: ['default'],
+                grades: {},
+                attendance: {}
+            });
+
+            saveState();
+            document.getElementById('new-student-fullname').value = '';
+            showToast(`Ученик ${name} создан! ID: ${randomId}, PIN: ${randomPin}`);
+            renderTeacherJournalTable();
+        }
+
+        function deleteStudent(idx) {
+            if (confirm(`Удалить ученика ${appState.students[idx].name}?`)) {
+                appState.students.splice(idx, 1);
+                saveState();
+                renderTeacherJournalTable();
+                showToast('Ученик удален!');
+            }
+        }
+
+        function addNewHomeworkByTeacher() {
+            const cls = document.getElementById('hw-class-select').value;
+            const sub = document.getElementById('hw-subject-select').value;
+            const dateVal = document.getElementById('hw-date-input').value;
+            const text = document.getElementById('hw-text-input').value.trim();
+
+            if (!cls || !sub || !text) { showToast('Заполните все поля ДЗ'); return; }
+
+            if (!appState.homework) appState.homework = [];
+            appState.homework.push({
+                id: 'HW-' + Date.now(),
+                class: cls,
+                subject: sub,
+                date: dateVal,
+                text: text
+            });
+
+            saveState();
+            document.getElementById('hw-text-input').value = '';
+            showToast('Домашнее задание опубликовано!');
+            renderTeacherHomework();
+        }
+
+        function renderTeacherHomework() {
+            const container = document.getElementById('teacher-homework-list');
+            if (!appState.homework || !appState.homework.length) {
+                container.innerHTML = '<p style="color:var(--text-muted)">Нет добавленных домашних заданий.</p>';
+                return;
+            }
+            container.innerHTML = appState.homework.map((hw, idx) => `
+                <div class="homework-card">
+                    <div style="display:flex; justify-style:space-between; align-items:center; margin-bottom:8px;">
+                        <span class="badge-subject-tag"><i class="fa-solid fa-book"></i> ${hw.subject} (${hw.class})</span>
+                        <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-regular fa-calendar"></i> ${hw.date}</span>
+                    </div>
+                    <p style="font-size:0.95rem; line-height:1.5;">${hw.text}</p>
+                    <button class="tool-btn" style="color:var(--grade-2); margin-top:12px;" onclick="deleteHomework(${idx})"><i class="fa-solid fa-trash"></i> Удалить ДЗ</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteHomework(idx) {
+            appState.homework.splice(idx, 1);
+            saveState();
+            renderTeacherHomework();
+            showToast('ДЗ удалено');
+        }
+
+        function renderTeacherExcuses() {
+            const container = document.getElementById('teacher-excuses-list');
+            if (!appState.excuses || !appState.excuses.length) {
+                container.innerHTML = '<p style="color:var(--text-muted)">Объяснительных пока нет.</p>';
+                return;
+            }
+            container.innerHTML = appState.excuses.map(ex => `
+                <div class="homework-card" style="border-left-color: var(--accent);">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <b>${ex.studentName} (${ex.studentClass})</b>
+                        <small style="color:var(--text-muted)">Дата пропуска: ${ex.date}</small>
+                    </div>
+                    <div style="color:var(--accent); font-weight:700; font-size:0.85rem; margin-bottom:8px;">Причина: ${ex.reason}</div>
+                    <p style="font-size:0.9rem;">${ex.text}</p>
+                </div>
+            `).join('');
+        }
+
+        /* STUDENT & PARENT AUTH */
+        function submitStudentAuth() {
+            const idVal = document.getElementById('student-id-input').value.trim().toUpperCase();
+            const pinVal = document.getElementById('student-pin-input').value.trim();
+
+            const idx = (appState.students || []).findIndex(s => s.id.toUpperCase() === idVal && (s.pinPlain === pinVal || s.pin === pinVal));
+            if (idx !== -1) {
+                currentStudentIdx = idx;
+                showToast(`Добро пожаловать, ${appState.students[idx].name}!`);
+                renderStudentDashboard();
+                switchView('view-dash-student');
+            } else {
+                showToast('Неверный ID или PIN ученика!');
+            }
+        }
+
+        function submitParentAuth() {
+            const idVal = document.getElementById('parent-student-id-input').value.trim().toUpperCase();
+            const keyInput = document.getElementById('parent-secret-key-input').value.trim().toUpperCase();
+
+            const storedKey = (appState.keys && appState.keys.parent_key) ? appState.keys.parent_key : "EDSH-2026-PARENT";
+            const validParentKey = storedKey.trim().toUpperCase();
+
+            if (keyInput !== validParentKey) {
+                showToast('❌ Неверный секретный ключ родителя!');
+                return;
+            }
+
+            const idx = (appState.students || []).findIndex(s => s.id.toUpperCase() === idVal);
+            if (idx !== -1) {
+                currentStudentIdx = idx;
+                showToast(`Кабинет родителя для: ${appState.students[idx].name}`);
+                renderParentDashboard();
+                switchView('view-dash-parent');
+            } else {
+                showToast('Ученик с таким ID не найден!');
+            }
+        }
+
+        /* STUDENT DASHBOARD */
         function renderStudentDashboard() {
             const student = appState.students[currentStudentIdx];
             if (!student) return;
-
-            if (!student.unlockedSkins) student.unlockedSkins = ['default'];
-            if (!student.activeSkin) student.activeSkin = 'default';
 
             document.getElementById('student-dash-fullname').innerText = student.name;
             document.getElementById('student-dash-classbadge').innerText = student.class;
             document.getElementById('student-dash-id').innerText = `ID: ${student.id}`;
             document.getElementById('student-coins-count').innerText = student.coins || 0;
 
-            renderStudentRoomAndSkins();
-            renderStudentHomeworkList();
+            const skin = SKINS_CATALOG.find(s => s.id === (student.activeSkin || 'default')) || SKINS_CATALOG[0];
+            document.getElementById('active-character-preview').innerText = skin.icon;
+            document.getElementById('student-avatar-letter').innerText = skin.icon;
+            document.getElementById('active-skin-title').innerText = skin.name;
+            document.getElementById('active-skin-desc').innerText = skin.desc;
 
-            let allGrades = [];
-            const tbody = document.getElementById('student-grades-table-body');
-            tbody.innerHTML = '';
-
-            for (let sub in student.grades) {
-                const list = student.grades[sub];
-                allGrades = allGrades.concat(list);
-                const avg = list.length ? (list.reduce((a,b)=>a+b,0)/list.length).toFixed(2) : '-';
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${sub}</b></td>
-                        <td>${list.map(g => `<span class="grade-badge grade-${g}">${g}</span>`).join('')}</td>
-                        <td><b>${avg}</b></td>
-                    </tr>
-                `;
-            }
-
-            const totalAvg = allGrades.length ? (allGrades.reduce((a,b)=>a+b,0)/allGrades.length).toFixed(2) : '5.0';
-            document.getElementById('stat-avg-grade').innerText = totalAvg;
-            document.getElementById('stat-total-count').innerText = allGrades.length;
-
-            renderStudentAttendanceHistory();
+            renderSkinsShop();
+            renderStudentHomework();
+            renderStudentGrades();
             renderStudentTasks();
-        }
-
-        function renderStudentHomeworkList() {
-            const student = appState.students[currentStudentIdx];
-            const listDiv = document.getElementById('student-homework-list');
-            const filteredHw = (appState.homework || []).filter(h => h.class === student.class);
-
-            if (!filteredHw.length) {
-                listDiv.innerHTML = '<p style="color:var(--text-muted)">На данный момент заданий нет. 🎉</p>';
-                return;
-            }
-
-            listDiv.innerHTML = filteredHw.slice().reverse().map(hw => `
-                <div class="homework-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <span class="badge-subject-tag"><i class="fa-solid fa-book"></i> ${hw.subject}</span>
-                        <span style="font-size:0.85rem; color:var(--gold); font-weight:700;">Срок: ${hw.date}</span>
-                    </div>
-                    <p style="font-size:0.95rem; color:#fff; line-height:1.5;">${hw.text}</p>
-                </div>
-            `).join('');
-        }
-
-        function renderStudentAttendanceHistory() {
-            const student = appState.students[currentStudentIdx];
-            const listDiv = document.getElementById('student-attendance-history-list');
-
-            if (!student.attendance || !Object.keys(student.attendance).length) {
-                listDiv.innerHTML = '<p style="color:var(--text-muted)">Записей о пропусках нет. Отличное посещение!</p>';
-                return;
-            }
-
-            let historyHtml = '';
-            for (let dateKey in student.attendance) {
-                for (let subKey in student.attendance[dateKey]) {
-                    const st = student.attendance[dateKey][subKey];
-                    let badge = `<span class="att-badge att-badge-n">${st}</span>`;
-                    historyHtml += `
-                        <div class="task-item-card">
-                            <div><h4>${subKey}</h4><small style="color:var(--text-muted)">Дата: ${dateKey}</small></div>
-                            <div>${badge}</div>
-                        </div>
-                    `;
-                }
-            }
-            listDiv.innerHTML = historyHtml;
-        }
-
-        function renderStudentRoomAndSkins() {
-            const student = appState.students[currentStudentIdx];
-            const currentSkinObj = SKINS_CATALOG.find(s => s.id === student.activeSkin) || SKINS_CATALOG[0];
-
-            document.getElementById('active-character-preview').innerText = currentSkinObj.icon;
-            document.getElementById('active-skin-title').innerText = currentSkinObj.name;
-            document.getElementById('active-skin-desc').innerText = currentSkinObj.desc;
-            document.getElementById('student-avatar-letter').innerText = currentSkinObj.icon;
-
-            const shopContainer = document.getElementById('skins-shop-container');
-            shopContainer.innerHTML = SKINS_CATALOG.map(skin => {
-                const isUnlocked = student.unlockedSkins.includes(skin.id);
-                const isActive = student.activeSkin === skin.id;
-
-                let actionBtnHtml = '';
-                if (isActive) {
-                    actionBtnHtml = `<button class="btn-submit" style="background:var(--grade-5); padding:8px 14px; font-size:0.82rem;" disabled>Надето</button>`;
-                } else if (isUnlocked) {
-                    actionBtnHtml = `<button class="btn-submit" style="padding:8px 14px; font-size:0.82rem;" onclick="equipSkin('${skin.id}')">Надеть</button>`;
-                } else {
-                    actionBtnHtml = `<button class="btn-submit" style="background:linear-gradient(135deg, var(--gold), #d97706); padding:8px 14px; font-size:0.82rem;" onclick="buySkin('${skin.id}')">Купить за ${skin.price} 🪙</button>`;
-                }
-
-                return `
-                    <div class="skin-item-card ${skin.limited ? 'limited' : ''}">
-                        ${skin.limited ? '<span class="limited-badge">LIMITED</span>' : ''}
-                        <div class="skin-icon-large">${skin.icon}</div>
-                        <h4 style="margin-bottom:4px;">${skin.name}</h4>
-                        <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">${skin.desc}</p>
-                        ${actionBtnHtml}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function equipSkin(skinId) {
-            const student = appState.students[currentStudentIdx];
-            student.activeSkin = skinId;
-            saveState();
-            renderStudentDashboard();
-            showToast('Персонаж изменён!');
-        }
-
-        function buySkin(skinId) {
-            const student = appState.students[currentStudentIdx];
-            const skin = SKINS_CATALOG.find(s => s.id === skinId);
-
-            if ((student.coins || 0) >= skin.price) {
-                student.coins -= skin.price;
-                student.unlockedSkins.push(skin.id);
-                student.activeSkin = skin.id;
-                saveState();
-                renderStudentDashboard();
-                showToast(`Скин "${skin.name}" куплен! 🎉`);
-            } else {
-                showToast('❌ Недостаточно монеток 🪙!');
-            }
-        }
-
-        function renderStudentTasks() {
-            const student = appState.students[currentStudentIdx];
-            const tasksList = document.getElementById('student-tasks-list');
-            const studentTasks = (appState.tasks || []).filter(t => t.studentId === student.id);
-
-            if(!studentTasks.length) {
-                tasksList.innerHTML = '<p style="color:var(--text-muted)">Поручений пока нет.</p>';
-                return;
-            }
-
-            tasksList.innerHTML = studentTasks.map(t => {
-                let btn = '';
-                if(t.status === 'pending') btn = `<button class="btn-submit" style="width:auto; padding:8px 14px; font-size:0.82rem;" onclick="markTaskReview('${t.id}')">Выполнено</button>`;
-                else if(t.status === 'review') btn = `<span style="color:var(--gold); font-size:0.88rem;">На проверке</span>`;
-                else if(t.status === 'completed') btn = `<span style="color:var(--grade-5); font-size:0.88rem;">Принято (+${t.coins}🪙)</span>`;
-
-                return `
-                    <div class="task-item-card">
-                        <div>
-                            <h4>${t.title}</h4>
-                            <div class="task-coin-reward" style="margin-top:6px;"><i class="fa-solid fa-coins"></i> +${t.coins} Монеток</div>
-                        </div>
-                        <div>${btn}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function markTaskReview(taskId) {
-            const task = appState.tasks.find(t => t.id === taskId);
-            if(task) {
-                task.status = 'review';
-                saveState();
-                renderStudentTasks();
-                showToast('Отправлено родителю на проверку!');
-            }
         }
 
         function switchStudentTab(tabId) {
@@ -2536,30 +2394,152 @@
             });
         }
 
-        /* PARENT LOGIC */
-        function submitParentAuth() {
-            const studentIdInput = document.getElementById('parent-student-id-input').value.trim().toUpperCase();
-            const parentKeyInput = document.getElementById('parent-secret-key-input').value.trim();
+        function renderSkinsShop() {
+            const student = appState.students[currentStudentIdx];
+            const container = document.getElementById('skins-shop-container');
+            const inv = student.inventory || ['default'];
 
-            const validParentKey = (appState.keys && appState.keys.parent_key) ? appState.keys.parent_key : "EDSH-2026-PARENT";
+            container.innerHTML = SKINS_CATALOG.map(s => {
+                const isBought = inv.includes(s.id);
+                const isActive = (student.activeSkin || 'default') === s.id;
 
-            if (parentKeyInput !== validParentKey) {
-                showToast('❌ Неверный ключ родителя!');
+                let actionBtn = '';
+                if (isActive) {
+                    actionBtn = `<button class="btn-submit" disabled style="opacity:0.6; background:var(--grade-5);">Надет</button>`;
+                } else if (isBought) {
+                    actionBtn = `<button class="btn-submit" style="background:var(--primary);" onclick="equipSkin('${s.id}')">Надеть</button>`;
+                } else {
+                    actionBtn = `<button class="btn-submit" style="background:linear-gradient(135deg, var(--gold), #d97706);" onclick="buySkin('${s.id}', ${s.price})">Купить за ${s.price} 🪙</button>`;
+                }
+
+                return `
+                    <div class="skin-item-card ${s.limited ? 'limited' : ''}">
+                        ${s.limited ? '<span class="limited-badge">Лимитка</span>' : ''}
+                        <div class="skin-icon-large">${s.icon}</div>
+                        <h4 style="font-weight:800; font-size:1.05rem;">${s.name}</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin:6px 0 16px 0;">${s.desc}</p>
+                        ${actionBtn}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function buySkin(skinId, price) {
+            const student = appState.students[currentStudentIdx];
+            if ((student.coins || 0) < price) {
+                showToast('❌ Недостаточно монеток!');
                 return;
             }
 
-            const studentIndex = (appState.students || []).findIndex(s => s.id && s.id.toUpperCase() === studentIdInput);
+            student.coins -= price;
+            if (!student.inventory) student.inventory = ['default'];
+            student.inventory.push(skinId);
+            student.activeSkin = skinId;
 
-            if (studentIndex !== -1) {
-                currentStudentIdx = studentIndex;
-                showToast(`Вход выполнен! Ребёнок: ${appState.students[studentIndex].name}`);
-                renderParentDashboard();
-                switchView('view-dash-parent');
-            } else {
-                showToast('❌ Ученик с таким ID не найден!');
+            saveState();
+            renderStudentDashboard();
+            showToast('Скин успешно куплен!');
+        }
+
+        function equipSkin(skinId) {
+            const student = appState.students[currentStudentIdx];
+            student.activeSkin = skinId;
+            saveState();
+            renderStudentDashboard();
+            showToast('Скин надет!');
+        }
+
+        function renderStudentHomework() {
+            const student = appState.students[currentStudentIdx];
+            const container = document.getElementById('student-homework-list');
+            const list = (appState.homework || []).filter(h => h.class === student.class);
+
+            if (!list.length) {
+                container.innerHTML = '<p style="color:var(--text-muted)">Домашних заданий пока нет!</p>';
+                return;
+            }
+
+            container.innerHTML = list.map(hw => `
+                <div class="homework-card">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span class="badge-subject-tag"><i class="fa-solid fa-book"></i> ${hw.subject}</span>
+                        <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-regular fa-calendar"></i> До: ${hw.date}</span>
+                    </div>
+                    <p style="font-size:0.95rem; line-height:1.5;">${hw.text}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderStudentGrades() {
+            const student = appState.students[currentStudentIdx];
+            const tbody = document.getElementById('student-grades-table-body');
+            tbody.innerHTML = '';
+
+            let totalSum = 0;
+            let totalCount = 0;
+
+            for (let sub in student.grades) {
+                const arr = student.grades[sub];
+                if (arr && arr.length) {
+                    const sum = arr.reduce((a, b) => a + b, 0);
+                    const avg = (sum / arr.length).toFixed(1);
+                    totalSum += sum;
+                    totalCount += arr.length;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><b>${sub}</b></td>
+                            <td>${arr.map(g => `<span class="grade-badge grade-${g}">${g}</span>`).join('')}</td>
+                            <td><b>${avg}</b></td>
+                        </tr>
+                    `;
+                }
+            }
+
+            if (!totalCount) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;">Оценок пока нет.</td></tr>';
+            }
+
+            document.getElementById('stat-avg-grade').innerText = totalCount ? (totalSum / totalCount).toFixed(2) : '0.0';
+            document.getElementById('stat-total-count').innerText = totalCount;
+        }
+
+        function renderStudentTasks() {
+            const student = appState.students[currentStudentIdx];
+            const container = document.getElementById('student-tasks-list');
+            const list = (appState.tasks || []).filter(t => t.studentId === student.id);
+
+            if (!list.length) {
+                container.innerHTML = '<p style="color:var(--text-muted)">Поручений от родителей пока нет.</p>';
+                return;
+            }
+
+            container.innerHTML = list.map(t => `
+                <div class="task-item-card">
+                    <div>
+                        <h4 style="font-size:1rem; font-weight:700;">${t.title}</h4>
+                        <span class="task-coin-reward">+${t.coins} 🪙</span>
+                    </div>
+                    <div>
+                        ${t.status === 'completed' ? '<span style="color:var(--grade-5); font-weight:700;">Выполнено ✓</span>' : `<button class="btn-submit" style="width:auto; padding:8px 14px;" onclick="completeTaskByStudent('${t.id}')">Завершить</button>`}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function completeTaskByStudent(taskId) {
+            const task = (appState.tasks || []).find(t => t.id === taskId);
+            if (task && task.status !== 'completed') {
+                task.status = 'completed';
+                const student = appState.students[currentStudentIdx];
+                student.coins = (student.coins || 0) + task.coins;
+                saveState();
+                renderStudentDashboard();
+                showToast(`Задание выполнено! Получено +${task.coins} 🪙`);
             }
         }
 
+        /* PARENT DASHBOARD */
         function renderParentDashboard() {
             const student = appState.students[currentStudentIdx];
             if (!student) return;
@@ -2572,44 +2552,43 @@
             renderParentGrades();
         }
 
+        function switchParentTab(tabId) {
+            ['parent-tab-tasks', 'parent-tab-grades', 'parent-tab-excuse'].forEach(id => {
+                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+            });
+        }
+
         function renderParentTasks() {
             const student = appState.students[currentStudentIdx];
-            const tasksList = document.getElementById('parent-tasks-list');
-            const studentTasks = (appState.tasks || []).filter(t => t.studentId === student.id);
+            const container = document.getElementById('parent-tasks-list');
+            const list = (appState.tasks || []).filter(t => t.studentId === student.id);
 
-            if(!studentTasks.length) {
-                tasksList.innerHTML = '<p style="color:var(--text-muted)">Вы пока не создавали поручений.</p>';
+            if (!list.length) {
+                container.innerHTML = '<p style="color:var(--text-muted)">Поручений нет. Нажмите «Создать Поручение» выше.</p>';
                 return;
             }
 
-            tasksList.innerHTML = studentTasks.map(t => {
-                let btn = '';
-                if(t.status === 'pending') btn = `<span style="color:var(--text-muted); font-size:0.88rem;">Выполняется</span>`;
-                else if(t.status === 'review') btn = `<button class="btn-submit" style="width:auto; padding:8px 14px; font-size:0.82rem; background:var(--grade-5);" onclick="approveTask('${t.id}')">Подтвердить (+${t.coins}🪙)</button>`;
-                else if(t.status === 'completed') btn = `<span style="color:var(--grade-5); font-size:0.88rem;">Выполнено</span>`;
-
-                return `
-                    <div class="task-item-card">
-                        <div>
-                            <h4>${t.title}</h4>
-                            <div class="task-coin-reward" style="margin-top:6px;">+${t.coins} Монеток</div>
-                        </div>
-                        <div>${btn}</div>
+            container.innerHTML = list.map((t, idx) => `
+                <div class="task-item-card">
+                    <div>
+                        <h4 style="font-size:1rem; font-weight:700;">${t.title}</h4>
+                        <span class="task-coin-reward">+${t.coins} 🪙</span>
                     </div>
-                `;
-            }).join('');
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:0.85rem; color:${t.status === 'completed' ? 'var(--grade-5)' : 'var(--gold)'}; font-weight:700;">
+                            ${t.status === 'completed' ? 'Выполнено' : 'В процессе'}
+                        </span>
+                        <button class="tool-btn" style="color:var(--grade-2);" onclick="deleteTaskByParent(${idx})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function approveTask(taskId) {
-            const task = appState.tasks.find(t => t.id === taskId);
-            if(task) {
-                task.status = 'completed';
-                const student = appState.students[currentStudentIdx];
-                student.coins = (student.coins || 0) + parseInt(task.coins);
-                saveState();
-                renderParentDashboard();
-                showToast(`Задание подтверждено! +${task.coins} 🪙 зачислено.`);
-            }
+        function deleteTaskByParent(idx) {
+            appState.tasks.splice(idx, 1);
+            saveState();
+            renderParentTasks();
+            showToast('Задание удалено');
         }
 
         function openAddTaskModal() {
@@ -2621,12 +2600,9 @@
             const coins = parseInt(document.getElementById('modal-task-coins').value) || 10;
             const student = appState.students[currentStudentIdx];
 
-            if(!title) {
-                showToast('Введите описание задания!');
-                return;
-            }
+            if (!title) { showToast('Введите описание задания'); return; }
 
-            if(!appState.tasks) appState.tasks = [];
+            if (!appState.tasks) appState.tasks = [];
             appState.tasks.push({
                 id: 'TSK-' + Date.now(),
                 studentId: student.id,
@@ -2637,20 +2613,21 @@
 
             saveState();
             closeModal('modal-add-task');
+            document.getElementById('modal-task-title').value = '';
             renderParentTasks();
             showToast('Поручение создано!');
         }
 
         function payoutCoinsDialog() {
             const student = appState.students[currentStudentIdx];
-            const delta = prompt(`Текущий баланс: ${student.coins || 0} 🪙\nВведите количество монет (например: 50 для начисления или -50 для списания):`);
-            if(delta !== null) {
-                const val = parseInt(delta);
-                if(!isNaN(val)) {
-                    student.coins = Math.max(0, (student.coins || 0) + val);
+            const amountStr = prompt(`Укажите количество монет для изменения баланса ${student.name} (положительное число прибавит, отрицательное убавит):`, "50");
+            if (amountStr !== null) {
+                const amount = parseInt(amountStr);
+                if (!isNaN(amount)) {
+                    student.coins = Math.max(0, (student.coins || 0) + amount);
                     saveState();
                     renderParentDashboard();
-                    showToast(`Баланс обновлен! Новый баланс: ${student.coins} 🪙`);
+                    showToast(`Баланс обновлен! Новое значение: ${student.coins} 🪙`);
                 }
             }
         }
@@ -2661,41 +2638,46 @@
             tbody.innerHTML = '';
 
             for (let sub in student.grades) {
-                const list = student.grades[sub];
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${sub}</b></td>
-                        <td>${list.map(g => `<span class="grade-badge grade-${g}">${g}</span>`).join('')}</td>
-                    </tr>
-                `;
+                const arr = student.grades[sub];
+                if (arr && arr.length) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><b>${sub}</b></td>
+                            <td>${arr.map(g => `<span class="grade-badge grade-${g}">${g}</span>`).join('')}</td>
+                        </tr>
+                    `;
+                }
+            }
+
+            if (!tbody.innerHTML) {
+                tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; padding:20px;">Оценок нет.</td></tr>';
             }
         }
 
         function sendParentExcuseNote() {
-            const student = appState.students[currentStudentIdx];
             const date = document.getElementById('parent-excuse-date').value;
             const reason = document.getElementById('parent-excuse-reason').value;
             const text = document.getElementById('parent-excuse-text').value.trim();
+            const student = appState.students[currentStudentIdx];
 
-            if(!date || !text) {
-                showToast('Заполните дату и текст записки!');
-                return;
-            }
+            if (!date || !text) { showToast('Заполните дату и текст объяснительной'); return; }
 
-            if(!appState.excuses) appState.excuses = [];
-            appState.excuses.push({ id: 'EXC-' + Date.now(), studentId: student.id, date, reason, text });
-            saveState();
-            showToast('Объяснительная успешно отправлена учителю!');
-            document.getElementById('parent-excuse-text').value = '';
-        }
-
-        function switchParentTab(tabId) {
-            ['parent-tab-tasks', 'parent-tab-grades', 'parent-tab-excuse'].forEach(id => {
-                document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+            if (!appState.excuses) appState.excuses = [];
+            appState.excuses.push({
+                id: 'EXC-' + Date.now(),
+                studentName: student.name,
+                studentClass: student.class,
+                date: date,
+                reason: reason,
+                text: text
             });
+
+            saveState();
+            document.getElementById('parent-excuse-text').value = '';
+            showToast('Объяснительная отправлена учителю!');
         }
 
-        /* AI ASSISTANT "Типчик AI" LOGIC (100% Free API) */
+        /* AI ASSISTANT LOGIC */
         function openAiAssistant() {
             document.getElementById('modal-ai-assistant').classList.add('active');
         }
@@ -2705,42 +2687,29 @@
             sendAiMessage();
         }
 
-        async function sendAiMessage() {
+        function sendAiMessage() {
             const input = document.getElementById('ai-user-input');
-            const prompt = input.value.trim();
-            if(!prompt) return;
+            const txt = input.value.trim();
+            if (!txt) return;
 
-            const chatContainer = document.getElementById('ai-chat-container');
-            chatContainer.innerHTML += `<div class="chat-msg user">${prompt}</div>`;
+            const chat = document.getElementById('ai-chat-container');
+            chat.innerHTML += `<div class="chat-msg user">${txt}</div>`;
             input.value = '';
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            chat.scrollTop = chat.scrollHeight;
 
-            const aiLoadingMsg = document.createElement('div');
-            aiLoadingMsg.className = 'chat-msg ai';
-            aiLoadingMsg.innerText = 'Типчик думает... 🤖';
-            chatContainer.appendChild(aiLoadingMsg);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            setTimeout(() => {
+                let response = "Интересный вопрос! Я анализирую школьную программу...";
+                if (txt.toLowerCase().includes('уравнени')) {
+                    response = "Квадратное уравнение имеет вид ax² + bx + c = 0. Находим дискриминант D = b² - 4ac. Если D > 0, у уравнения 2 корня: x = (-b ± √D) / (2a).";
+                } else if (txt.toLowerCase().includes('стих')) {
+                    response = "Советы по заучиванию стихов:\n1. Прочитайте вслух 3 раза.\n2. Перепишите от руки на лист.\n3. Учите по 2 строчки, постепенно объединяя четверостишия.";
+                } else {
+                    response = `По поводу «${txt}»: рекомендую заглянуть в раздел «Домашнее Задание» или спросить у вашего учителя во время урока!`;
+                }
 
-            try {
-                // Free public AI endpoint (Pollinations AI)
-                const res = await fetch('https://text.pollinations.ai/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: [
-                            { role: 'system', content: 'Ты веселый, умный школьный нейропомощник Типчик AI. Отвечай коротко, дружелюбно и понятно на русском языке.' },
-                            { role: 'user', content: prompt }
-                        ],
-                        model: 'openai'
-                    })
-                });
-
-                const replyText = await res.text();
-                aiLoadingMsg.innerHTML = replyText || "Извини, не смог сгенерировать ответ. Попробуй ещё раз!";
-            } catch(e) {
-                aiLoadingMsg.innerText = "Ошибка соединения с нейросетью. Проверь подключение к интернету!";
-            }
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+                chat.innerHTML += `<div class="chat-msg ai">🤖 ${response}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 600);
         }
     </script>
 </body>
