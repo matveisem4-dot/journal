@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ЭДШ-Pro v6.0 — Умный Дневник</title>
+<title>ЭДШ-Pro v6.1 — Умный Дневник</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -237,7 +237,7 @@ body.theme-light .tag{color:var(--primary-dark)}
 
 <div class="topbar">
   <div>
-    <div class="brand" onclick="nav('view-roles')"><div class="brand-ic"><i class="fa-solid fa-graduation-cap"></i></div><span>ЭДШ<span style="color:var(--secondary)">Pro</span> <small style="color:var(--accent);font-size:.6rem">v6</small></span></div>
+    <div class="brand" onclick="nav('view-roles')"><div class="brand-ic"><i class="fa-solid fa-graduation-cap"></i></div><span>ЭДШ<span style="color:var(--secondary)">Pro</span> <small style="color:var(--accent);font-size:.6rem">v6.1</small></span></div>
     <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="gs" placeholder="Поиск..." oninput="doSearch(this.value)"></div>
   </div>
   <div>
@@ -282,7 +282,6 @@ body.theme-light .tag{color:var(--primary-dark)}
   <section id="view-dash-parent" class="screen"><div class="dash"><aside class="sidebar"><div class="profile"><div class="avatar" style="background:linear-gradient(135deg,#06b6d4,#10b981)"><i class="fa-solid fa-user-shield"></i></div><div class="profile-info"><h3 id="p-child">Ребёнок</h3><small id="p-id">ID: —</small></div></div><ul class="menu"><li class="menu-section">Контроль</li><li class="menu-item active" data-ptab="p-progress" onclick="switchP('p-progress')"><i class="fa-solid fa-chart-line"></i> Прогресс</li><li class="menu-item" data-ptab="p-grades" onclick="switchP('p-grades')"><i class="fa-solid fa-star"></i> Оценки</li><li class="menu-item" data-ptab="p-schedule" onclick="switchP('p-schedule')"><i class="fa-solid fa-calendar-days"></i> Расписание</li><li class="menu-item" data-ptab="p-exc" onclick="switchP('p-exc')"><i class="fa-solid fa-file-pen"></i> Объяснительная</li><li class="menu-section">Аккаунт</li><li class="menu-item danger" onclick="logout('view-roles')"><i class="fa-solid fa-power-off"></i> Выйти</li></ul></aside><main><div id="p-progress" class="card"><div class="content-title"><h2>Прогресс</h2></div><div class="stats"><div class="stat"><div class="stat-label">Уровень</div><div class="stat-val" id="p-lvl">1</div></div><div class="stat"><div class="stat-label">Опыт</div><div class="stat-val" id="p-xp">0</div></div><div class="stat"><div class="stat-label">Достижений</div><div class="stat-val" id="p-ach">0</div></div><div class="stat"><div class="stat-label">Ср.балл</div><div class="stat-val" id="p-avg">0.0</div></div></div><h3 style="margin:18px 0 10px;font-size:.92rem">Достижения</h3><div class="ach-grid" id="p-ach-grid"></div></div><div id="p-grades" class="card" style="display:none"><div class="content-title"><h2>Оценки</h2></div><div class="table-wrap"><table class="table"><thead><tr><th>Предмет</th><th>Оценки</th></tr></thead><tbody id="p-grades-body"></tbody></table></div></div><div id="p-schedule" class="card" style="display:none"><div class="content-title"><h2>Расписание</h2></div><div id="p-sch-grid" class="tt"></div></div><div id="p-exc" class="card" style="display:none"><div class="content-title"><h2>Объяснительная</h2></div><div style="max-width:460px"><div class="field"><label class="label">Дата</label><input type="date" id="pe-dt" class="input"></div><div class="field"><label class="label">Причина</label><select id="pe-reason" class="select"><option>Болезнь</option><option>Семейные обстоятельства</option><option>Визит к врачу</option></select></div><div class="field"><label class="label">Комментарий</label><textarea id="pe-txt" class="textarea"></textarea></div><button class="btn btn-block" onclick="sendExc()"><i class="fa-solid fa-paper-plane"></i> Отправить</button></div></div></main></div></section>
 </div>
 
-<!-- SETTINGS -->
 <div id="modal-settings" class="modal"><div class="modal-box" style="max-width:620px">
   <div class="modal-header"><h3 class="modal-title"><i class="fa-solid fa-gear" style="color:var(--primary)"></i> Настройки</h3><button class="icon-btn" onclick="closeModal('modal-settings')"><i class="fa-solid fa-xmark"></i></button></div>
   <div class="set-tabs"><button class="set-tab active" data-st="app" onclick="setTab('app')">🎨 Внешность</button><button class="set-tab" data-st="ai" onclick="setTab('ai')">🤖 AI</button><button class="set-tab" data-st="profile" onclick="setTab('profile')">👤 Профиль</button><button class="set-tab" data-st="data" onclick="setTab('data')">💾 Данные</button><button class="set-tab" data-st="about" onclick="setTab('about')">ℹ️ О нас</button></div>
@@ -323,11 +322,10 @@ body.theme-light .tag{color:var(--primary-dark)}
     <div class="set-row"><div><div class="set-row-label">🧹 Кэш</div></div><button class="btn btn-sm btn-ghost" onclick="clearLocal()">Очистить</button></div>
     <div class="set-row"><div><div class="set-row-label" style="color:var(--danger)">⚠️ Полный сброс</div></div><button class="btn btn-sm btn-danger" onclick="fullReset()">Сбросить всё</button></div>
   </div>
-  <div id="set-about" style="display:none"><div style="text-align:center;padding:14px 0"><div class="brand-ic" style="width:56px;height:56px;font-size:1.4rem;margin:0 auto 10px"><i class="fa-solid fa-graduation-cap"></i></div><h3>ЭДШ-Pro v6.0</h3><p style="color:var(--muted);font-size:.82rem;margin:6px 0 14px">Умный дневник · Firebase · Vanilla JS · Без зависимостей</p><p style="color:var(--muted);font-size:.78rem;line-height:1.6"><b style="color:var(--text)">Функции:</b><br>AI · Тренажёр · Марафон · Ежедневные задания · Календарь · Помодоро · Уведомления · Поиск · 6 тем × 8 акцентов</p></div></div>
+  <div id="set-about" style="display:none"><div style="text-align:center;padding:14px 0"><div class="brand-ic" style="width:56px;height:56px;font-size:1.4rem;margin:0 auto 10px"><i class="fa-solid fa-graduation-cap"></i></div><h3>ЭДШ-Pro v6.1</h3><p style="color:var(--muted);font-size:.82rem;margin:6px 0 14px">Умный дневник · Firebase · Vanilla JS · Без зависимостей</p><p style="color:var(--muted);font-size:.78rem;line-height:1.6"><b style="color:var(--text)">Функции:</b><br>AI · Тренажёр · Марафон · Ежедневные задания · Календарь · Помодоро · Уведомления · Поиск · 6 тем × 8 акцентов</p></div></div>
   <button class="btn btn-block btn-ghost" style="margin-top:12px" onclick="closeModal('modal-settings')">Закрыть</button>
 </div></div>
 
-<!-- AI -->
 <div id="modal-ai" class="modal"><div class="modal-box">
   <div class="modal-header"><h3 class="modal-title"><i class="fa-solid fa-robot" style="color:#a855f7"></i> Типчик AI</h3><div style="display:flex;gap:5px;align-items:center"><span id="ai-provider-badge" class="tag" style="margin:0;font-size:.65rem"></span><button class="icon-btn" onclick="closeModal('modal-ai')"><i class="fa-solid fa-xmark"></i></button></div></div>
   <div id="ai-chat" style="display:flex;flex-direction:column;height:320px;overflow-y:auto;gap:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px;margin-bottom:10px"><div class="chat-msg ai">👋 Привет! Я Типчик AI. Работаю через <b>Pollinations</b> — бесплатно, без ключа. Спрашивай что угодно!</div></div>
@@ -335,7 +333,6 @@ body.theme-light .tag{color:var(--primary-dark)}
   <div style="display:flex;gap:6px"><input id="ai-input" class="input" placeholder="Спроси..." onkeypress="if(event.key==='Enter')sendAi()"><button class="btn" onclick="sendAi()"><i class="fa-solid fa-paper-plane"></i></button></div>
 </div></div>
 
-<!-- GRADE -->
 <div id="modal-grade" class="modal"><div class="modal-box" style="max-width:380px">
   <div class="modal-header"><h3 class="modal-title">Оценка</h3><button class="icon-btn" onclick="closeModal('modal-grade')"><i class="fa-solid fa-xmark"></i></button></div>
   <div class="field"><label class="label">Предмет</label><select id="g-sub" class="select"></select></div>
@@ -343,7 +340,6 @@ body.theme-light .tag{color:var(--primary-dark)}
   <div style="display:flex;gap:8px;margin-top:16px"><button class="btn btn-block btn-ghost" onclick="closeModal('modal-grade')">Отмена</button><button class="btn btn-block" onclick="saveGrade()">Сохранить</button></div>
 </div></div>
 
-<!-- CREATE TEST -->
 <div id="modal-create-test" class="modal"><div class="modal-box">
   <div class="modal-header"><h3 class="modal-title">Создать Тест</h3><button class="icon-btn" onclick="closeModal('modal-create-test')"><i class="fa-solid fa-xmark"></i></button></div>
   <div class="field"><label class="label">Класс</label><select id="ct-cls" class="select"></select></div>
@@ -355,40 +351,34 @@ body.theme-light .tag{color:var(--primary-dark)}
   <button class="btn btn-block" onclick="saveTest()"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>
 </div></div>
 
-<!-- TAKE TEST -->
 <div id="modal-take-test" class="modal"><div class="modal-box">
   <div class="modal-header"><h3 class="modal-title" id="tt-title">Тест</h3><button class="icon-btn" onclick="closeModal('modal-take-test')"><i class="fa-solid fa-xmark"></i></button></div>
   <div id="tt-questions"></div>
   <button class="btn btn-block" style="margin-top:12px" onclick="submitTest()"><i class="fa-solid fa-paper-plane"></i> Отправить</button>
 </div></div>
 
-<!-- TT CELL -->
 <div id="modal-tt-cell" class="modal"><div class="modal-box" style="max-width:360px">
   <div class="modal-header"><h3 class="modal-title">Урок</h3><button class="icon-btn" onclick="closeModal('modal-tt-cell')"><i class="fa-solid fa-xmark"></i></button></div>
   <div class="field"><label class="label">Предмет</label><select id="ttc-sub" class="select"></select></div>
   <div style="display:flex;gap:8px"><button class="btn btn-block btn-danger" onclick="clearTt()"><i class="fa-solid fa-trash"></i> Удалить</button><button class="btn btn-block" onclick="saveTt()">Сохранить</button></div>
 </div></div>
 
-<!-- NOTIF -->
 <div id="modal-notif" class="modal"><div class="modal-box" style="max-width:480px">
   <div class="modal-header"><h3 class="modal-title">🔔 Уведомления</h3><button class="icon-btn" onclick="closeModal('modal-notif')"><i class="fa-solid fa-xmark"></i></button></div>
   <div id="notif-list"></div>
 </div></div>
 
-<!-- SEARCH -->
 <div id="modal-search" class="modal"><div class="modal-box" style="max-width:540px">
   <div class="modal-header"><h3 class="modal-title">🔍 Результаты</h3><button class="icon-btn" onclick="closeModal('modal-search')"><i class="fa-solid fa-xmark"></i></button></div>
   <div id="search-results"></div>
 </div></div>
 
-<!-- CALENDAR -->
 <div id="modal-cal" class="modal"><div class="modal-box" style="max-width:600px">
   <div class="modal-header"><h3 class="modal-title">📅 Календарь</h3><div style="display:flex;gap:4px;align-items:center"><button class="icon-btn" onclick="calMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button><span id="cal-month" style="font-weight:700;min-width:120px;text-align:center;font-size:.85rem"></span><button class="icon-btn" onclick="calMonth(1)"><i class="fa-solid fa-chevron-right"></i></button><button class="icon-btn" onclick="closeModal('modal-cal')"><i class="fa-solid fa-xmark"></i></button></div></div>
   <div class="cal"><div class="cal-dow">Пн</div><div class="cal-dow">Вт</div><div class="cal-dow">Ср</div><div class="cal-dow">Чт</div><div class="cal-dow">Пт</div><div class="cal-dow">Сб</div><div class="cal-dow">Вс</div></div>
   <div id="cal-grid" class="cal"></div>
 </div></div>
 
-<!-- POMODORO -->
 <div id="modal-pom" class="modal"><div class="modal-box" style="max-width:360px">
   <div class="modal-header"><h3 class="modal-title">⏱️ Помодоро</h3><button class="icon-btn" onclick="closeModal('modal-pom')"><i class="fa-solid fa-xmark"></i></button></div>
   <div class="pom-wrap"><div id="pom-phase" style="font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px">Работа</div><div class="pom-time" id="pom-time">25:00</div><div id="pom-sessions" style="font-size:.75rem;color:var(--muted)">Сессий: 0</div><div class="pom-btns"><button class="btn" onclick="pomToggle()" id="pom-btn"><i class="fa-solid fa-play"></i> Старт</button><button class="btn btn-ghost" onclick="pomReset()"><i class="fa-solid fa-rotate-left"></i> Сброс</button></div></div>
@@ -432,7 +422,6 @@ let curDirector=null, curTeacher=null, curStudent=null;
 let selStuIdx=null, selGrade=5;
 let curTestId=null, curTtCell=null, qCache=[], trainerAns=0, trainerCorrect=0, trainerWrong=0;
 let calRef = new Date();
-let pomState = {running:false, phase:'work', left:25*60, sessions:0, timer:null};
 
 /* ============ FIREBASE ============ */
 let db=null;
@@ -471,7 +460,6 @@ function getWeekKey(){ const t=new Date(); const d=t.getDay()||7; const m=new Da
 function awardXp(student, xp){
   if(!student) return;
   student.xp = (student.xp||0)+xp;
-  // update marathon
   const wk = getWeekKey();
   if(!student.marathon || student.marathon.weekKey !== wk) student.marathon = {weekKey:wk, xp:0};
   student.marathon.xp += xp;
@@ -1114,16 +1102,13 @@ async function askAI(text){
     return '⚙️ Offline-режим. Откройте ⚙️ → AI и выберите Pollinations (бесплатно, без ключа).';
   }
   if(p === 'pollinations'){
-    const res = await fetch('https://gen.pollinations.ai/v1/chat/completions',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({model:'openai', messages:[
-        {role:'system', content:settings.aiSys},
-        {role:'user', content:text}
-      ]})
-    });
-    if(!res.ok) throw new Error('Pollinations HTTP '+res.status);
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content || 'Пустой ответ';
+    const encoded = encodeURIComponent(text);
+    const sys = encodeURIComponent(settings.aiSys || 'Ты — школьный помощник.');
+    const url = `https://text.pollinations.ai/${encoded}?model=openai&system=${sys}`;
+    
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('Pollinations HTTP ' + res.status);
+    return await res.text();
   }
   if(p === 'openai'){
     if(!settings.aiKey) throw new Error('Нет API-ключа OpenAI');
@@ -1211,7 +1196,6 @@ function onAiProviderChange(){
   document.getElementById('ai-custom-cfg').style.display = p==='custom'?'block':'none';
   settings.aiProvider = p;
   saveSettings();
-  // save current field values
   settings.aiKey = document.getElementById('set-ai-key').value;
   settings.aiModel = document.getElementById('set-ai-model').value;
   settings.aiAKey = document.getElementById('set-ai-akey').value;
@@ -1230,11 +1214,26 @@ function saveProfile(){
   settings.profileAvatar = document.getElementById('set-p-avatar').value.trim()||'🎓';
   saveSettings(); toast('✅ Профиль сохранён');
 }
-function exportData(){
-  const blob = new Blob([JSON.stringify({state, settings}, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download='edsh-export-'+todayISO()+'.json'; a.click();
-  URL.revokeObjectURL(url); toast('✅ Экспорт готов');
+
+/* ИСПРАВЛЕННЫЙ ЭКСПОРТ */
+function exportData() {
+  try {
+    const dataStr = JSON.stringify({ state: state, settings: settings }, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'edsh-export-' + new Date().toISOString().split('T')[0] + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    toast('✅ Файл с базой данных успешно выгружен', 'success');
+  } catch (e) {
+    toast('❌ Ошибка экспорта: ' + e.message, 'error');
+  }
 }
 function importData(e){
   const file = e.target.files[0]; if(!file) return;
@@ -1270,15 +1269,12 @@ function updateNotifs(){
   const s = state.students[curStudent]; if(!s) return;
   let count = 0;
   const list = [];
-  // HW for tomorrow
   const list_hw = state.homework.filter(h=>h.class===s.class);
   count += list_hw.length;
   list_hw.forEach(h=>list.push({icon:'📚', text:`ДЗ по ${h.subject}: ${h.text.slice(0,40)}...`, date:h.date}));
-  // New tests
   const tests = state.tests.filter(t=>t.class===s.class && !(t.results||[]).find(r=>r.studentId===s.id));
   count += tests.length;
   tests.forEach(t=>list.push({icon:'🧪', text:`Тест: ${t.title}`, date:t.deadline}));
-  // Announcements
   const ann = state.announcements.filter(a=>!a.class||a.class===s.class);
   count += ann.length;
   ann.forEach(a=>list.push({icon:'📣', text:a.title, date:a.date}));
@@ -1340,33 +1336,74 @@ function renderCal(){
   document.getElementById('cal-grid').innerHTML = html;
 }
 
-/* ============ POMODORO ============ */
-function openPom(){ updatePomDisplay(); openModal('modal-pom'); }
-function updatePomDisplay(){
-  const m = Math.floor(pomState.left/60), s = pomState.left%60;
-  document.getElementById('pom-time').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  document.getElementById('pom-phase').textContent = pomState.phase==='work'?'Работа':'Отдых';
-  document.getElementById('pom-sessions').textContent = 'Сессий: '+pomState.sessions;
-  const btn = document.getElementById('pom-btn');
-  btn.innerHTML = pomState.running ? '<i class="fa-solid fa-pause"></i> Пауза' : '<i class="fa-solid fa-play"></i> Старт';
-}
-function pomToggle(){
-  if(pomState.running){ clearInterval(pomState.timer); pomState.running=false; }
-  else{
-    pomState.running = true;
-    pomState.timer = setInterval(()=>{
-      pomState.left--;
-      if(pomState.left<=0){
-        clearInterval(pomState.timer); pomState.running=false;
-        if(pomState.phase==='work'){ pomState.sessions++; pomState.phase='break'; pomState.left=5*60; toast('✅ Работа завершена! 5 мин отдыха'); }
-        else { pomState.phase='work'; pomState.left=25*60; toast('☕ Отдых завершён! 25 мин работы'); }
-      }
-      updatePomDisplay();
-    }, 1000);
+/* ============ POMODORO (ИСПРАВЛЕНО) ============ */
+let pomInterval = null;
+let pomEndTime = null;
+let pomTotalTime = 25 * 60;
+
+function openPom() {
+  if (!pomInterval) {
+    document.getElementById('pom-time').textContent = "25:00";
+    document.getElementById('pom-phase').textContent = "Работа";
   }
-  updatePomDisplay();
+  openModal('modal-pom');
 }
-function pomReset(){ clearInterval(pomState.timer); pomState = {running:false,phase:'work',left:25*60,sessions:0,timer:null}; updatePomDisplay(); }
+
+function pomToggle() {
+  const btn = document.getElementById('pom-btn');
+  
+  if (pomInterval) {
+    clearInterval(pomInterval);
+    pomInterval = null;
+    btn.innerHTML = '<i class="fa-solid fa-play"></i> Продолжить';
+    return;
+  }
+
+  btn.innerHTML = '<i class="fa-solid fa-pause"></i> Пауза';
+  
+  if (!pomEndTime) {
+    pomEndTime = Date.now() + pomTotalTime * 1000;
+  }
+  
+  pomInterval = setInterval(() => {
+    const now = Date.now();
+    const left = Math.max(0, Math.floor((pomEndTime - now) / 1000));
+    
+    const m = Math.floor(left / 60);
+    const s = left % 60;
+    document.getElementById('pom-time').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    
+    if (left <= 0) {
+      clearInterval(pomInterval);
+      pomInterval = null;
+      pomEndTime = null;
+      btn.innerHTML = '<i class="fa-solid fa-play"></i> Старт';
+      
+      const phaseEl = document.getElementById('pom-phase');
+      if (phaseEl.textContent === 'Работа') {
+        phaseEl.textContent = 'Отдых';
+        pomTotalTime = 5 * 60;
+        toast('✅ Работа завершена! 5 мин отдыха');
+        if (curStudent !== null) awardXp(state.students[curStudent], 15);
+      } else {
+        phaseEl.textContent = 'Работа';
+        pomTotalTime = 25 * 60;
+        toast('☕ Отдых завершён! 25 мин работы');
+      }
+      document.getElementById('pom-time').textContent = `${String(Math.floor(pomTotalTime/60)).padStart(2,'0')}:00`;
+    }
+  }, 1000);
+}
+
+function pomReset() {
+  clearInterval(pomInterval);
+  pomInterval = null;
+  pomEndTime = null;
+  pomTotalTime = 25 * 60;
+  document.getElementById('pom-time').textContent = "25:00";
+  document.getElementById('pom-phase').textContent = "Работа";
+  document.getElementById('pom-btn').innerHTML = '<i class="fa-solid fa-play"></i> Старт';
+}
 
 /* ============ EVENT DELEGATION ============ */
 document.addEventListener('click', e=>{
@@ -1399,7 +1436,6 @@ setInterval(updateClock, 1000); updateClock();
 applySettings();
 setTimeout(()=>{ document.getElementById('loader').classList.remove('active'); }, 300);
 initSync();
-// refresh quests marathon on load
 setInterval(()=>{ if(curStudent !== null) updateNotifs(); }, 30000);
 </script>
 </body>
